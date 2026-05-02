@@ -56,6 +56,10 @@ data/
 logs/
 *.log
 
+# Temp files
+tmp/
+*.pid
+
 # Test cache
 .pytest_cache/
 .coverage
