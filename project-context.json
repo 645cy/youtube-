@@ -1,0 +1,2141 @@
+{
+  "project_name": "tubefactory-ocp",
+  "root_path": "D:\\Projects\\YouTube\\tubefactory-ocp",
+  "scan_time": "2026-05-02T20:20:50.270696",
+  "summary": {
+    "total_files": 90,
+    "total_lines": 17958,
+    "languages": {
+      "python": 40,
+      "typescript": 11,
+      "javascript": 2,
+      "tsx": 37
+    }
+  },
+  "files": [
+    {
+      "path": "check_ai_features.py",
+      "language": "python",
+      "line_count": 63,
+      "classes": [],
+      "functions": [
+        "api",
+        "main"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "json",
+        "os",
+        "urllib.parse",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "check_features.py",
+      "language": "python",
+      "line_count": 80,
+      "classes": [],
+      "functions": [
+        "api",
+        "request_json",
+        "main"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "json",
+        "os",
+        "urllib.parse",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "check_frontend.py",
+      "language": "python",
+      "line_count": 37,
+      "classes": [],
+      "functions": [
+        "main"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "os",
+        "time",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "apps/api/config.py",
+      "language": "python",
+      "line_count": 69,
+      "classes": [
+        "Settings"
+      ],
+      "functions": [
+        "proxy_list"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "pydantic_settings"
+      ]
+    },
+    {
+      "path": "apps/api/main.py",
+      "language": "python",
+      "line_count": 240,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "logging",
+        "contextlib",
+        "fastapi",
+        "fastapi.middleware.cors",
+        "apps.api.config",
+        "packages.db.schema",
+        "apps.api.routers"
+      ]
+    },
+    {
+      "path": "apps/api/schemas.py",
+      "language": "python",
+      "line_count": 437,
+      "classes": [
+        "ChannelCreate",
+        "ChannelRead",
+        "ChannelUpdate",
+        "ChannelList",
+        "VideoCreate",
+        "VideoRead",
+        "VideoList",
+        "VideoFilter",
+        "MonitorJobCreate",
+        "MonitorJobRead",
+        "MonitorWithChannel",
+        "MonitorJobUpdate",
+        "CrawlerTaskCreate",
+        "CrawlerTaskRead",
+        "CrawlerTaskRunRead",
+        "AnalysisRequest",
+        "ViralDetectionResult",
+        "EvergreenResult",
+        "SentimentResult",
+        "SentimentAggregation",
+        "MonetizationResult",
+        "NicheScoreResult",
+        "AnalysisResult",
+        "MetricHistoryCreate",
+        "MetricHistoryRead",
+        "UserSkill",
+        "UserProfile",
+        "PathRecommendation",
+        "RecommendationResponse",
+        "DashboardKPI"
+      ],
+      "functions": [
+        "validate_analysis_types"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "datetime",
+        "typing",
+        "pydantic",
+        "apps.api.config"
+      ]
+    },
+    {
+      "path": "apps/api/routers/analysis.py",
+      "language": "python",
+      "line_count": 652,
+      "classes": [
+        "AnalysisRequestExtended"
+      ],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "time",
+        "datetime",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.schemas",
+        "apps.api.config",
+        "apps.api.services.analyzer",
+        "packages.db.schema",
+        "pydantic"
+      ]
+    },
+    {
+      "path": "apps/api/routers/channels.py",
+      "language": "python",
+      "line_count": 577,
+      "classes": [],
+      "functions": [
+        "_pick_thumbnail",
+        "_missing_thumbnail"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "logging",
+        "datetime",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.schemas",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/routers/content_factory.py",
+      "language": "python",
+      "line_count": 1011,
+      "classes": [],
+      "functions": [
+        "_calculate_section_duration",
+        "_get_equipment_checklist",
+        "_match_title_template",
+        "_generate_improved_titles",
+        "_get_intent"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "logging",
+        "random",
+        "datetime",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.config",
+        "apps.api.services.analyzer",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/routers/crawler.py",
+      "language": "python",
+      "line_count": 281,
+      "classes": [],
+      "functions": [
+        "_task_read"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "json",
+        "datetime",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.config",
+        "apps.api.schemas",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/routers/lab.py",
+      "language": "python",
+      "line_count": 261,
+      "classes": [],
+      "functions": [
+        "_get_recommender",
+        "_convert_profile",
+        "_infer_difficulty"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.schemas",
+        "apps.api.services.recommender",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/routers/radar.py",
+      "language": "python",
+      "line_count": 388,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "json",
+        "datetime",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.schemas",
+        "apps.api.services.analyzer",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/routers/videos.py",
+      "language": "python",
+      "line_count": 209,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "typing",
+        "fastapi",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.schemas",
+        "apps.api.config",
+        "packages.db.schema",
+        "json"
+      ]
+    },
+    {
+      "path": "apps/api/seed/demo_cleanup.py",
+      "language": "python",
+      "line_count": 90,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "json",
+        "sys",
+        "pathlib",
+        "sqlalchemy",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/seed/import_trending.py",
+      "language": "python",
+      "line_count": 308,
+      "classes": [],
+      "functions": [
+        "youtube_search",
+        "get_channel_details",
+        "get_channel_videos",
+        "get_video_stats"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "json",
+        "logging",
+        "sys",
+        "datetime",
+        "os",
+        "httpx",
+        "apps.api.config"
+      ]
+    },
+    {
+      "path": "apps/api/seed/seed_db.py",
+      "language": "python",
+      "line_count": 67,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "json",
+        "logging",
+        "datetime",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/services/analyzer.py",
+      "language": "python",
+      "line_count": 862,
+      "classes": [
+        "VideoMetrics",
+        "ViralDetectionResult",
+        "KeywordMetrics",
+        "EvergreenDetectionResult",
+        "SentimentResult",
+        "MonetizationResult",
+        "NicheMetrics",
+        "NicheScoringResult",
+        "ShortTermViralDetector",
+        "LongTailEvergreenDetector",
+        "CommentSentimentAnalyzer",
+        "MonetizationSignalDetector",
+        "NicheScoringCard",
+        "VideoFormatAnalyzer",
+        "ThumbnailCTREstimator",
+        "DashboardKPICalculator",
+        "SchedulerEngine"
+      ],
+      "functions": [
+        "_decay",
+        "_calc_vri",
+        "_calc_velocity",
+        "detect",
+        "_norm_search",
+        "_calc_ssi",
+        "__init__",
+        "_tokenize",
+        "analyze",
+        "batch_analyze",
+        "aggregate",
+        "_extract_urls",
+        "_check_affiliate",
+        "_detect_coupons",
+        "_traffic_potential",
+        "_monetization_density",
+        "_ai_replaceability",
+        "_reproducibility",
+        "score",
+        "compare",
+        "_swot",
+        "calculate_viral_coefficient",
+        "estimate",
+        "_tips",
+        "calculate",
+        "calculate_next_run",
+        "should_run"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "math",
+        "re",
+        "collections",
+        "dataclasses",
+        "datetime",
+        "typing"
+      ]
+    },
+    {
+      "path": "apps/api/services/crawler_engine.py",
+      "language": "python",
+      "line_count": 338,
+      "classes": [
+        "CrawlerPolicy",
+        "UserAgentRotator",
+        "ProxyProvider",
+        "ProxyPool",
+        "AdaptiveBackoff",
+        "SlidingWindowRateLimiter",
+        "CrawlerEngine"
+      ],
+      "functions": [
+        "__init__",
+        "get_random",
+        "get_next",
+        "reset_failures",
+        "calculate",
+        "should_retry",
+        "_build_headers",
+        "get_stats"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "logging",
+        "random",
+        "time",
+        "dataclasses",
+        "typing",
+        "httpx"
+      ]
+    },
+    {
+      "path": "apps/api/services/recommender.py",
+      "language": "python",
+      "line_count": 600,
+      "classes": [
+        "UserProfile",
+        "MonetizationPath",
+        "PathMatchResult",
+        "RecommendationOutput",
+        "PathRecommender"
+      ],
+      "functions": [
+        "__init__",
+        "from_json",
+        "_skill_match",
+        "_time_match",
+        "_budget_match",
+        "_interest_match",
+        "_equipment_match",
+        "_personality_match",
+        "_difficulty_match",
+        "_roi_potential",
+        "_calculate_score",
+        "recommend",
+        "_generate_workflow",
+        "load_default_paths"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "json",
+        "logging",
+        "dataclasses",
+        "pathlib",
+        "typing"
+      ]
+    },
+    {
+      "path": "apps/api/services/scheduler.py",
+      "language": "python",
+      "line_count": 298,
+      "classes": [],
+      "functions": [
+        "get_scheduler",
+        "init_scheduler",
+        "shutdown_scheduler"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "logging",
+        "datetime",
+        "apscheduler.schedulers.asyncio",
+        "apscheduler.triggers.interval",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "apps/api/services/youtube_api.py",
+      "language": "python",
+      "line_count": 549,
+      "classes": [
+        "EndpointCost",
+        "QuotaSnapshot",
+        "QuotaManager",
+        "YouTubeAPIClient",
+        "VideoMetadata",
+        "YTDLPMetaExtractor",
+        "AsyncYTDLPMetaExtractor",
+        "DualTrackExtractor"
+      ],
+      "functions": [
+        "with_call",
+        "is_exhausted",
+        "reset_if_needed",
+        "__init__",
+        "snapshot",
+        "quota",
+        "_is_available",
+        "_fetch",
+        "extract_video",
+        "extract_playlist",
+        "extract_channel_uploads",
+        "_normalize"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "json",
+        "logging",
+        "os",
+        "dataclasses",
+        "datetime",
+        "enum",
+        "typing"
+      ]
+    },
+    {
+      "path": "apps/web/next-env.d.ts",
+      "language": "typescript",
+      "line_count": 5,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/next.config.js",
+      "language": "javascript",
+      "line_count": 76,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "next"
+      ]
+    },
+    {
+      "path": "apps/web/postcss.config.js",
+      "language": "javascript",
+      "line_count": 6,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/tailwind.config.ts",
+      "language": "typescript",
+      "line_count": 100,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "tailwindcss-animate"
+      ]
+    },
+    {
+      "path": "apps/web/app/ClientLayout.tsx",
+      "language": "tsx",
+      "line_count": 353,
+      "classes": [],
+      "functions": [
+        "ClientLayout",
+        "LayoutInner",
+        "handleToast",
+        "handleResize",
+        "if"
+      ],
+      "interfaces": [
+        "ToastItem"
+      ],
+      "imports": [
+        "@/components/BackgroundLayer"
+      ]
+    },
+    {
+      "path": "apps/web/app/error.tsx",
+      "language": "tsx",
+      "line_count": 64,
+      "classes": [],
+      "functions": [
+        "reset"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/layout.tsx",
+      "language": "tsx",
+      "line_count": 23,
+      "classes": [],
+      "functions": [
+        "RootLayout"
+      ],
+      "interfaces": [],
+      "imports": [
+        "./globals.css"
+      ]
+    },
+    {
+      "path": "apps/web/app/loading.tsx",
+      "language": "tsx",
+      "line_count": 52,
+      "classes": [],
+      "functions": [
+        "Loading"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/page.tsx",
+      "language": "tsx",
+      "line_count": 5,
+      "classes": [],
+      "functions": [
+        "HomePage"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/crawler/page.tsx",
+      "language": "tsx",
+      "line_count": 303,
+      "classes": [],
+      "functions": [
+        "statusTone",
+        "formatTime",
+        "CrawlerPage",
+        "catch",
+        "if",
+        "createTask",
+        "triggerTask",
+        "deleteTask"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/dashboard/page.tsx",
+      "language": "tsx",
+      "line_count": 421,
+      "classes": [],
+      "functions": [
+        "DashboardPage",
+        "if",
+        "catch"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/factory/page.tsx",
+      "language": "tsx",
+      "line_count": 463,
+      "classes": [],
+      "functions": [
+        "FactoryPage",
+        "if",
+        "String",
+        "catch",
+        "floor",
+        "formatTime",
+        "join"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/lab/page.tsx",
+      "language": "tsx",
+      "line_count": 375,
+      "classes": [],
+      "functions": [
+        "LabPage",
+        "if",
+        "catch",
+        "StepIndicator"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/radar/page.tsx",
+      "language": "tsx",
+      "line_count": 201,
+      "classes": [],
+      "functions": [
+        "normalizeMonitors",
+        "for",
+        "if",
+        "RadarPage",
+        "load",
+        "catch",
+        "importYoutube"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/settings/integrations/page.tsx",
+      "language": "tsx",
+      "line_count": 85,
+      "classes": [],
+      "functions": [
+        "loadDiagnostics",
+        "IntegrationsPage",
+        "refresh",
+        "catch",
+        "StatusCard",
+        "Row"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/app/workspace/page.tsx",
+      "language": "tsx",
+      "line_count": 80,
+      "classes": [],
+      "functions": [
+        "WorkspacePage",
+        "if",
+        "FlowCard",
+        "ReportTable"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/BackgroundLayer.tsx",
+      "language": "tsx",
+      "line_count": 155,
+      "classes": [],
+      "functions": [
+        "BackgroundLayer",
+        "resize",
+        "initParticles",
+        "for",
+        "draw",
+        "if"
+      ],
+      "interfaces": [
+        "Particle"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/analysis/VideoAnalysisPanel.tsx",
+      "language": "tsx",
+      "line_count": 389,
+      "classes": [],
+      "functions": [
+        "onClose",
+        "VideoAnalysisPanel",
+        "run",
+        "catch",
+        "getScore",
+        "round",
+        "ScoreCard",
+        "DetailSection",
+        "ViralDetail",
+        "EvergreenDetail",
+        "SentimentDetail",
+        "MonetizationDetail",
+        "SentimentBadge",
+        "KeyValue"
+      ],
+      "interfaces": [
+        "AnalysisResult",
+        "VideoAnalysisPanelProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/dashboard/ChannelCard.tsx",
+      "language": "tsx",
+      "line_count": 125,
+      "classes": [],
+      "functions": [
+        "ChannelCard"
+      ],
+      "interfaces": [
+        "ChannelCardProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/dashboard/GrowthChart.tsx",
+      "language": "tsx",
+      "line_count": 198,
+      "classes": [],
+      "functions": [
+        "CustomTooltip",
+        "GrowthChart",
+        "if"
+      ],
+      "interfaces": [
+        "GrowthChartProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/dashboard/KPICards.tsx",
+      "language": "tsx",
+      "line_count": 156,
+      "classes": [],
+      "functions": [
+        "KPICards",
+        "if"
+      ],
+      "interfaces": [
+        "KPICardsProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/dashboard/SearchBox.tsx",
+      "language": "tsx",
+      "line_count": 274,
+      "classes": [],
+      "functions": [
+        "SearchBox",
+        "if",
+        "handleClickOutside",
+        "handleClear",
+        "handleSortChange",
+        "toggleSourceType",
+        "catch"
+      ],
+      "interfaces": [
+        "SearchBoxProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/dashboard/VideoDrawer.tsx",
+      "language": "tsx",
+      "line_count": 205,
+      "classes": [],
+      "functions": [
+        "onClose",
+        "VideoDrawer",
+        "VideoListItem",
+        "handleOpenYoutube",
+        "if",
+        "handleAnalyze"
+      ],
+      "interfaces": [
+        "VideoDrawerProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/factory/ScriptEditor.tsx",
+      "language": "tsx",
+      "line_count": 297,
+      "classes": [],
+      "functions": [
+        "onUpdate",
+        "ScriptEditor",
+        "updateSegment",
+        "addSegment",
+        "removeSegment",
+        "toggleExpand"
+      ],
+      "interfaces": [
+        "ScriptSegment",
+        "ScriptEditorProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/factory/StoryboardHelper.tsx",
+      "language": "tsx",
+      "line_count": 339,
+      "classes": [],
+      "functions": [
+        "onUpdate",
+        "StoryboardHelper",
+        "addItem",
+        "if",
+        "match",
+        "formatTime",
+        "updateItem",
+        "removeItem",
+        "StoryboardRow",
+        "onEdit",
+        "onRemove"
+      ],
+      "interfaces": [
+        "StoryboardItem",
+        "StoryboardHelperProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/factory/TopicGenerator.tsx",
+      "language": "tsx",
+      "line_count": 244,
+      "classes": [],
+      "functions": [
+        "onGenerate",
+        "TopicGenerator",
+        "handleGenerate",
+        "TopicCard",
+        "TopicSkeleton"
+      ],
+      "interfaces": [
+        "TopicItem",
+        "TopicGeneratorProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/lab/PathRecommendation.tsx",
+      "language": "tsx",
+      "line_count": 212,
+      "classes": [],
+      "functions": [
+        "onSelectPath",
+        "getMatchColor",
+        "getMatchLabel",
+        "PathRecommendation",
+        "if",
+        "CardSkeleton"
+      ],
+      "interfaces": [
+        "PathRecommendationProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/lab/UserProfileForm.tsx",
+      "language": "tsx",
+      "line_count": 364,
+      "classes": [],
+      "functions": [
+        "onSubmit",
+        "UserProfileForm",
+        "toggleArrayValue"
+      ],
+      "interfaces": [
+        "UserProfileFormProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/lab/WorkflowDetail.tsx",
+      "language": "tsx",
+      "line_count": 289,
+      "classes": [],
+      "functions": [
+        "StepStatusIcon",
+        "switch",
+        "WorkflowDetail",
+        "toggleStep",
+        "toggleStepStatus"
+      ],
+      "interfaces": [
+        "WorkflowDetailProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/radar/GrowthChart.tsx",
+      "language": "tsx",
+      "line_count": 163,
+      "classes": [],
+      "functions": [
+        "CustomTooltip",
+        "RadarGrowthChart",
+        "if"
+      ],
+      "interfaces": [
+        "GrowthDataPoint",
+        "RadarGrowthChartProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/radar/MonitorList.tsx",
+      "language": "tsx",
+      "line_count": 304,
+      "classes": [],
+      "functions": [
+        "MonitorList",
+        "handleAdd",
+        "if"
+      ],
+      "interfaces": [
+        "MonitoredChannel",
+        "MonitorListProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/badge.tsx",
+      "language": "tsx",
+      "line_count": 53,
+      "classes": [],
+      "functions": [
+        "Badge"
+      ],
+      "interfaces": [
+        "BadgeProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/button.tsx",
+      "language": "tsx",
+      "line_count": 118,
+      "classes": [],
+      "functions": [],
+      "interfaces": [
+        "ButtonProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/card.tsx",
+      "language": "tsx",
+      "line_count": 86,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/drawer.tsx",
+      "language": "tsx",
+      "line_count": 140,
+      "classes": [],
+      "functions": [
+        "SheetHeader",
+        "SheetFooter"
+      ],
+      "interfaces": [
+        "SheetContentProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/input.tsx",
+      "language": "tsx",
+      "line_count": 57,
+      "classes": [],
+      "functions": [],
+      "interfaces": [
+        "InputProps"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/progress.tsx",
+      "language": "tsx",
+      "line_count": 29,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/scroll-area.tsx",
+      "language": "tsx",
+      "line_count": 50,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/skeleton.tsx",
+      "language": "tsx",
+      "line_count": 114,
+      "classes": [],
+      "functions": [
+        "Skeleton",
+        "CardSkeleton",
+        "StatSkeleton",
+        "ChartSkeleton",
+        "SidebarSkeleton",
+        "TableRowSkeleton"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/tabs.tsx",
+      "language": "tsx",
+      "line_count": 62,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/components/ui/toast.tsx",
+      "language": "tsx",
+      "line_count": 151,
+      "classes": [],
+      "functions": [
+        "ToastIcon",
+        "switch"
+      ],
+      "interfaces": [
+        "ToastData"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/api.ts",
+      "language": "typescript",
+      "line_count": 584,
+      "classes": [],
+      "functions": [
+        "list",
+        "get",
+        "create",
+        "importBatch",
+        "delete",
+        "getDashboardKPI",
+        "viralDetection",
+        "evergreenDetection",
+        "sentimentAnalysis",
+        "monetizationDetection",
+        "fullAnalysis",
+        "getHistory",
+        "getGrowth",
+        "formatCoefficient",
+        "thumbnailCTR",
+        "listMonitors",
+        "createMonitor",
+        "getMonitor",
+        "updateMonitor",
+        "deleteMonitor",
+        "triggerMonitor",
+        "compareChannels",
+        "getMonitorLogs",
+        "listPaths",
+        "getPath",
+        "recommend",
+        "createProfile",
+        "quickMatch",
+        "topicDiscovery",
+        "listScriptTemplates",
+        "getScriptTemplate",
+        "generateShotList",
+        "optimizeTitle",
+        "getSEOKeywords",
+        "aiScriptGenerate",
+        "thumbnailSuggestions",
+        "publishTimeOptimization",
+        "humanReviewChecklist",
+        "check",
+        "listTasks",
+        "createTask",
+        "triggerTask",
+        "listRuns",
+        "deleteTask"
+      ],
+      "interfaces": [
+        "VideoRead",
+        "VideoList",
+        "MonitorJobRead",
+        "MonitorWithChannel",
+        "AnalysisDashboardKPI",
+        "LabPathResponse",
+        "PathRecommendation",
+        "WorkflowStep",
+        "SubStep",
+        "TopicItem",
+        "ScriptSegment",
+        "StoryboardItem",
+        "TagItem",
+        "GrowthDataPoint",
+        "CrawlerTask",
+        "CrawlerTaskRun"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/defaults.ts",
+      "language": "typescript",
+      "line_count": 21,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/mappers.ts",
+      "language": "typescript",
+      "line_count": 160,
+      "classes": [],
+      "functions": [
+        "toNumber",
+        "toStringArray",
+        "filter",
+        "if",
+        "mapChannelToIntelChannel",
+        "mapVideoToVideoItem",
+        "mapMonitorToRadarChannel",
+        "createWorkflowSteps",
+        "slice",
+        "mapPathToOCPPath"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/store.ts",
+      "language": "typescript",
+      "line_count": 383,
+      "classes": [],
+      "functions": [
+        "toggleSidebar",
+        "setSidebarOpen",
+        "setActiveNav",
+        "showToast",
+        "clearToast",
+        "setLoading",
+        "setChannels",
+        "selectChannel",
+        "setSearchQuery",
+        "setSearchFilters",
+        "setTags",
+        "toggleTag",
+        "setKPIs",
+        "setGrowthData",
+        "filteredChannels",
+        "if",
+        "setUserProfile",
+        "setRecommendedPaths",
+        "selectPath",
+        "setWorkflowSteps",
+        "setGenerating",
+        "getSelectedPath",
+        "setMonitoredChannels",
+        "setActiveTab",
+        "setTopics",
+        "setScriptSegments",
+        "setStoryboardItems"
+      ],
+      "interfaces": [
+        "IntelChannel",
+        "ChannelMetrics",
+        "VideoItem",
+        "TagItem",
+        "DashboardKPI",
+        "GrowthDataPoint",
+        "WorkflowStep",
+        "SubStep",
+        "UserProfile",
+        "OCPPath",
+        "TopicItem",
+        "AppState",
+        "IntelState",
+        "OCPState",
+        "RadarState",
+        "FactoryState"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/toast.ts",
+      "language": "typescript",
+      "line_count": 31,
+      "classes": [],
+      "functions": [
+        "toast",
+        "toastSuccess",
+        "toastError",
+        "toastWarning",
+        "toastInfo"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/utils.ts",
+      "language": "typescript",
+      "line_count": 94,
+      "classes": [],
+      "functions": [
+        "cn",
+        "formatNumber",
+        "formatDate",
+        "formatCompactNumber",
+        "if",
+        "Date",
+        "formatRelativeTime",
+        "sleep"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/api/channels.ts",
+      "language": "typescript",
+      "line_count": 45,
+      "classes": [],
+      "functions": [
+        "search",
+        "list",
+        "get",
+        "update",
+        "delete",
+        "importYoutube",
+        "getStats",
+        "getVideos",
+        "create",
+        "bulkDiscover"
+      ],
+      "interfaces": [
+        "ChannelRead",
+        "ChannelList"
+      ],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/api/request.ts",
+      "language": "typescript",
+      "line_count": 63,
+      "classes": [],
+      "functions": [
+        "showToast",
+        "if",
+        "buildUrl",
+        "replace",
+        "URL",
+        "for",
+        "catch",
+        "TimeoutError"
+      ],
+      "interfaces": [],
+      "imports": []
+    },
+    {
+      "path": "apps/web/lib/api/types.ts",
+      "language": "typescript",
+      "line_count": 38,
+      "classes": [
+        "ApiError",
+        "TimeoutError"
+      ],
+      "functions": [
+        "constructor"
+      ],
+      "interfaces": [
+        "RequestConfig",
+        "PaginatedResponse"
+      ],
+      "imports": []
+    },
+    {
+      "path": "packages/db/schema.py",
+      "language": "python",
+      "line_count": 409,
+      "classes": [
+        "MonitorStatus",
+        "JobType",
+        "AnalysisType",
+        "MetricType",
+        "CrawlerTaskStatus",
+        "CrawlerRunStatus",
+        "Base",
+        "Channel",
+        "Video",
+        "MonitorJob",
+        "CrawlerTask",
+        "CrawlerTaskRun",
+        "AnalysisLog",
+        "MetricHistory"
+      ],
+      "functions": [
+        "now_utc",
+        "get_engine",
+        "get_sessionmaker"
+      ],
+      "interfaces": [],
+      "imports": [
+        "__future__",
+        "enum",
+        "json",
+        "datetime",
+        "typing",
+        "sqlalchemy",
+        "sqlalchemy.ext.asyncio",
+        "sqlalchemy.orm"
+      ]
+    },
+    {
+      "path": "tmp/architecture_audit.py",
+      "language": "python",
+      "line_count": 218,
+      "classes": [],
+      "functions": [
+        "check"
+      ],
+      "interfaces": [],
+      "imports": [
+        "urllib.request",
+        "os"
+      ]
+    },
+    {
+      "path": "tmp/check.py",
+      "language": "python",
+      "line_count": 28,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/check_api.py",
+      "language": "python",
+      "line_count": 51,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/check_api2.py",
+      "language": "python",
+      "line_count": 47,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/check_api3.py",
+      "language": "python",
+      "line_count": 28,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/check_viral.py",
+      "language": "python",
+      "line_count": 17,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/debug_viral.py",
+      "language": "python",
+      "line_count": 25,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/deep_audit.py",
+      "language": "python",
+      "line_count": 120,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/final_verify.py",
+      "language": "python",
+      "line_count": 103,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/find_dups.py",
+      "language": "python",
+      "line_count": 11,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "re",
+        "collections"
+      ]
+    },
+    {
+      "path": "tmp/quick_audit.py",
+      "language": "python",
+      "line_count": 112,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request",
+        "datetime"
+      ]
+    },
+    {
+      "path": "tmp/seed_bulk.py",
+      "language": "python",
+      "line_count": 235,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "asyncio",
+        "datetime",
+        "sqlalchemy",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "tmp/seed_demo.py",
+      "language": "python",
+      "line_count": 127,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "asyncio",
+        "datetime",
+        "sqlalchemy",
+        "apps.api.config",
+        "packages.db.schema"
+      ]
+    },
+    {
+      "path": "tmp/test_lab.py",
+      "language": "python",
+      "line_count": 38,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/verify.py",
+      "language": "python",
+      "line_count": 95,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "tmp/verify_fixes.py",
+      "language": "python",
+      "line_count": 123,
+      "classes": [],
+      "functions": [],
+      "interfaces": [],
+      "imports": [
+        "urllib.request",
+        "os"
+      ]
+    },
+    {
+      "path": "tmp/verify_phase2.py",
+      "language": "python",
+      "line_count": 75,
+      "classes": [],
+      "functions": [
+        "curl"
+      ],
+      "interfaces": [],
+      "imports": [
+        "subprocess"
+      ]
+    },
+    {
+      "path": "tmp/verify_phase2_final.py",
+      "language": "python",
+      "line_count": 74,
+      "classes": [],
+      "functions": [
+        "api"
+      ],
+      "interfaces": [],
+      "imports": [
+        "urllib.request"
+      ]
+    }
+  ],
+  "symbols": {
+    "all_classes": [
+      "AdaptiveBackoff",
+      "AnalysisLog",
+      "AnalysisRequest",
+      "AnalysisRequestExtended",
+      "AnalysisResult",
+      "AnalysisType",
+      "ApiError",
+      "AsyncYTDLPMetaExtractor",
+      "Base",
+      "Channel",
+      "ChannelCreate",
+      "ChannelList",
+      "ChannelRead",
+      "ChannelUpdate",
+      "CommentSentimentAnalyzer",
+      "CrawlerEngine",
+      "CrawlerPolicy",
+      "CrawlerRunStatus",
+      "CrawlerTask",
+      "CrawlerTaskCreate",
+      "CrawlerTaskRead",
+      "CrawlerTaskRun",
+      "CrawlerTaskRunRead",
+      "CrawlerTaskStatus",
+      "DashboardKPI",
+      "DashboardKPICalculator",
+      "DualTrackExtractor",
+      "EndpointCost",
+      "EvergreenDetectionResult",
+      "EvergreenResult",
+      "JobType",
+      "KeywordMetrics",
+      "LongTailEvergreenDetector",
+      "MetricHistory",
+      "MetricHistoryCreate",
+      "MetricHistoryRead",
+      "MetricType",
+      "MonetizationPath",
+      "MonetizationResult",
+      "MonetizationSignalDetector",
+      "MonitorJob",
+      "MonitorJobCreate",
+      "MonitorJobRead",
+      "MonitorJobUpdate",
+      "MonitorStatus",
+      "MonitorWithChannel",
+      "NicheMetrics",
+      "NicheScoreResult",
+      "NicheScoringCard",
+      "NicheScoringResult",
+      "PathMatchResult",
+      "PathRecommendation",
+      "PathRecommender",
+      "ProxyPool",
+      "ProxyProvider",
+      "QuotaManager",
+      "QuotaSnapshot",
+      "RecommendationOutput",
+      "RecommendationResponse",
+      "SchedulerEngine",
+      "SentimentAggregation",
+      "SentimentResult",
+      "Settings",
+      "ShortTermViralDetector",
+      "SlidingWindowRateLimiter",
+      "ThumbnailCTREstimator",
+      "TimeoutError",
+      "UserAgentRotator",
+      "UserProfile",
+      "UserSkill",
+      "Video",
+      "VideoCreate",
+      "VideoFilter",
+      "VideoFormatAnalyzer",
+      "VideoList",
+      "VideoMetadata",
+      "VideoMetrics",
+      "VideoRead",
+      "ViralDetectionResult",
+      "YTDLPMetaExtractor",
+      "YouTubeAPIClient"
+    ],
+    "all_functions": [
+      "BackgroundLayer",
+      "Badge",
+      "CardSkeleton",
+      "ChannelCard",
+      "ChartSkeleton",
+      "ClientLayout",
+      "CrawlerPage",
+      "CustomTooltip",
+      "DashboardPage",
+      "Date",
+      "DetailSection",
+      "EvergreenDetail",
+      "FactoryPage",
+      "FlowCard",
+      "GrowthChart",
+      "HomePage",
+      "IntegrationsPage",
+      "KPICards",
+      "KeyValue",
+      "LabPage",
+      "LayoutInner",
+      "Loading",
+      "MonetizationDetail",
+      "MonitorList",
+      "PathRecommendation",
+      "RadarGrowthChart",
+      "RadarPage",
+      "ReportTable",
+      "RootLayout",
+      "Row",
+      "ScoreCard",
+      "ScriptEditor",
+      "SearchBox",
+      "SentimentBadge",
+      "SentimentDetail",
+      "SheetFooter",
+      "SheetHeader",
+      "SidebarSkeleton",
+      "Skeleton",
+      "StatSkeleton",
+      "StatusCard",
+      "StepIndicator",
+      "StepStatusIcon",
+      "StoryboardHelper",
+      "StoryboardRow",
+      "String",
+      "TableRowSkeleton",
+      "TimeoutError",
+      "ToastIcon",
+      "TopicCard",
+      "TopicGenerator",
+      "TopicSkeleton",
+      "URL",
+      "UserProfileForm",
+      "VideoAnalysisPanel",
+      "VideoDrawer",
+      "VideoListItem",
+      "ViralDetail",
+      "WorkflowDetail",
+      "WorkspacePage",
+      "__init__",
+      "_ai_replaceability",
+      "_budget_match",
+      "_build_headers",
+      "_calc_ssi",
+      "_calc_velocity",
+      "_calc_vri",
+      "_calculate_score",
+      "_calculate_section_duration",
+      "_check_affiliate",
+      "_convert_profile",
+      "_decay",
+      "_detect_coupons",
+      "_difficulty_match",
+      "_equipment_match",
+      "_extract_urls",
+      "_fetch",
+      "_generate_improved_titles",
+      "_generate_workflow",
+      "_get_equipment_checklist",
+      "_get_intent",
+      "_get_recommender",
+      "_infer_difficulty",
+      "_interest_match",
+      "_is_available",
+      "_match_title_template",
+      "_missing_thumbnail",
+      "_monetization_density",
+      "_norm_search",
+      "_normalize",
+      "_personality_match",
+      "_pick_thumbnail",
+      "_reproducibility",
+      "_roi_potential",
+      "_skill_match",
+      "_swot",
+      "_task_read",
+      "_time_match",
+      "_tips",
+      "_tokenize",
+      "_traffic_potential",
+      "addItem",
+      "addSegment",
+      "aggregate",
+      "aiScriptGenerate",
+      "analyze",
+      "api",
+      "batch_analyze",
+      "buildUrl",
+      "bulkDiscover",
+      "calculate",
+      "calculate_next_run",
+      "calculate_viral_coefficient",
+      "catch",
+      "check",
+      "clearToast",
+      "cn",
+      "compare",
+      "compareChannels",
+      "constructor",
+      "create",
+      "createMonitor",
+      "createProfile",
+      "createTask",
+      "createWorkflowSteps",
+      "curl",
+      "delete",
+      "deleteMonitor",
+      "deleteTask",
+      "detect",
+      "draw",
+      "estimate",
+      "evergreenDetection",
+      "extract_channel_uploads",
+      "extract_playlist",
+      "extract_video",
+      "filter",
+      "filteredChannels",
+      "floor",
+      "for",
+      "formatCoefficient",
+      "formatCompactNumber",
+      "formatDate",
+      "formatNumber",
+      "formatRelativeTime",
+      "formatTime",
+      "from_json",
+      "fullAnalysis",
+      "generateShotList",
+      "get",
+      "getDashboardKPI",
+      "getGrowth",
+      "getHistory",
+      "getMatchColor",
+      "getMatchLabel",
+      "getMonitor",
+      "getMonitorLogs",
+      "getPath",
+      "getSEOKeywords",
+      "getScore",
+      "getScriptTemplate",
+      "getSelectedPath",
+      "getStats",
+      "getVideos",
+      "get_channel_details",
+      "get_channel_videos",
+      "get_engine",
+      "get_next",
+      "get_random",
+      "get_scheduler",
+      "get_sessionmaker",
+      "get_stats",
+      "get_video_stats",
+      "handleAdd",
+      "handleAnalyze",
+      "handleClear",
+      "handleClickOutside",
+      "handleGenerate",
+      "handleOpenYoutube",
+      "handleResize",
+      "handleSortChange",
+      "handleToast",
+      "humanReviewChecklist",
+      "if",
+      "importBatch",
+      "importYoutube",
+      "initParticles",
+      "init_scheduler",
+      "is_exhausted",
+      "join",
+      "list",
+      "listMonitors",
+      "listPaths",
+      "listRuns",
+      "listScriptTemplates",
+      "listTasks",
+      "load",
+      "loadDiagnostics",
+      "load_default_paths",
+      "main",
+      "mapChannelToIntelChannel",
+      "mapMonitorToRadarChannel",
+      "mapPathToOCPPath",
+      "mapVideoToVideoItem",
+      "match",
+      "monetizationDetection",
+      "normalizeMonitors",
+      "now_utc",
+      "onClose",
+      "onEdit",
+      "onGenerate",
+      "onRemove",
+      "onSelectPath",
+      "onSubmit",
+      "onUpdate",
+      "optimizeTitle",
+      "proxy_list",
+      "publishTimeOptimization",
+      "quickMatch",
+      "quota",
+      "recommend",
+      "refresh",
+      "removeItem",
+      "removeSegment",
+      "replace",
+      "request_json",
+      "reset",
+      "reset_failures",
+      "reset_if_needed",
+      "resize",
+      "round",
+      "run",
+      "score",
+      "search",
+      "selectChannel",
+      "selectPath",
+      "sentimentAnalysis",
+      "setActiveNav",
+      "setActiveTab",
+      "setChannels",
+      "setGenerating",
+      "setGrowthData",
+      "setKPIs",
+      "setLoading",
+      "setMonitoredChannels",
+      "setRecommendedPaths",
+      "setScriptSegments",
+      "setSearchFilters",
+      "setSearchQuery",
+      "setSidebarOpen",
+      "setStoryboardItems",
+      "setTags",
+      "setTopics",
+      "setUserProfile",
+      "setWorkflowSteps",
+      "should_retry",
+      "should_run",
+      "showToast",
+      "shutdown_scheduler",
+      "sleep",
+      "slice",
+      "snapshot",
+      "statusTone",
+      "switch",
+      "thumbnailCTR",
+      "thumbnailSuggestions",
+      "toNumber",
+      "toStringArray",
+      "toast",
+      "toastError",
+      "toastInfo",
+      "toastSuccess",
+      "toastWarning",
+      "toggleArrayValue",
+      "toggleExpand",
+      "toggleSidebar",
+      "toggleSourceType",
+      "toggleStep",
+      "toggleStepStatus",
+      "toggleTag",
+      "topicDiscovery",
+      "triggerMonitor",
+      "triggerTask",
+      "update",
+      "updateItem",
+      "updateMonitor",
+      "updateSegment",
+      "validate_analysis_types",
+      "viralDetection",
+      "with_call",
+      "youtube_search"
+    ],
+    "all_interfaces": [
+      "AnalysisDashboardKPI",
+      "AnalysisResult",
+      "AppState",
+      "BadgeProps",
+      "ButtonProps",
+      "ChannelCardProps",
+      "ChannelList",
+      "ChannelMetrics",
+      "ChannelRead",
+      "CrawlerTask",
+      "CrawlerTaskRun",
+      "DashboardKPI",
+      "FactoryState",
+      "GrowthChartProps",
+      "GrowthDataPoint",
+      "InputProps",
+      "IntelChannel",
+      "IntelState",
+      "KPICardsProps",
+      "LabPathResponse",
+      "MonitorJobRead",
+      "MonitorListProps",
+      "MonitorWithChannel",
+      "MonitoredChannel",
+      "OCPPath",
+      "OCPState",
+      "PaginatedResponse",
+      "Particle",
+      "PathRecommendation",
+      "PathRecommendationProps",
+      "RadarGrowthChartProps",
+      "RadarState",
+      "RequestConfig",
+      "ScriptEditorProps",
+      "ScriptSegment",
+      "SearchBoxProps",
+      "SheetContentProps",
+      "StoryboardHelperProps",
+      "StoryboardItem",
+      "SubStep",
+      "TagItem",
+      "ToastData",
+      "ToastItem",
+      "TopicGeneratorProps",
+      "TopicItem",
+      "UserProfile",
+      "UserProfileFormProps",
+      "VideoAnalysisPanelProps",
+      "VideoDrawerProps",
+      "VideoItem",
+      "VideoList",
+      "VideoRead",
+      "WorkflowDetailProps",
+      "WorkflowStep"
+    ]
+  },
+  "dependencies": [
+    "./globals.css",
+    "@/components/BackgroundLayer",
+    "__future__",
+    "apps.api.config",
+    "apps.api.routers",
+    "apps.api.schemas",
+    "apps.api.services.analyzer",
+    "apps.api.services.recommender",
+    "apscheduler.schedulers.asyncio",
+    "apscheduler.triggers.interval",
+    "asyncio",
+    "collections",
+    "contextlib",
+    "dataclasses",
+    "datetime",
+    "enum",
+    "fastapi",
+    "fastapi.middleware.cors",
+    "httpx",
+    "json",
+    "logging",
+    "math",
+    "next",
+    "os",
+    "packages.db.schema",
+    "pathlib",
+    "pydantic",
+    "pydantic_settings",
+    "random",
+    "re",
+    "sqlalchemy",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy.orm",
+    "subprocess",
+    "sys",
+    "tailwindcss-animate",
+    "time",
+    "typing",
+    "urllib.parse",
+    "urllib.request"
+  ]
+}

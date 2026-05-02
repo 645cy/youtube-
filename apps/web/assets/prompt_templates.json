@@ -1,0 +1,154 @@
+
+/* =============================================================================
+   文件说明 / Documentation
+   =============================================================================
+
+   本文件包含 Code-Cluster-B 完整前端代码，共 28 个文件模块。
+   所有代码已写入 /mnt/agents/output/code_cluster_b_frontend.tsx
+   
+   使用方式：
+   1. 创建 Next.js 14 项目
+   2. 将上述代码按 ### FILE 标记拆分到对应文件路径
+   3. 安装依赖：npm install（或 pnpm install / yarn）
+   4. 运行：npm run dev
+
+   生成的文件清单：
+
+   配置文件 (5):
+   - package.json
+   - tailwind.config.ts
+   - postcss.config.js
+   - tsconfig.json
+   - next.config.js
+
+   全局样式 (1):
+   - app/globals.css
+
+   工具库 (2):
+   - lib/utils.ts       (cn/formatNumber/formatDate/debounce)
+   - lib/api.ts         (统一API客户端 + 业务API封装)
+   - lib/store.ts       (Zustand 5个Store + 类型定义)
+
+   UI组件 (10):
+   - components/ui/button.tsx       (Button + buttonVariants)
+   - components/ui/card.tsx         (Card/CardHeader/CardTitle/CardContent/CardFooter)
+   - components/ui/input.tsx        (Input + Textarea)
+   - components/ui/badge.tsx        (Badge + badgeVariants)
+   - components/ui/drawer.tsx       (Sheet/SheetContent/SheetHeader 等)
+   - components/ui/tabs.tsx         (Tabs/TabsList/TabsTrigger/TabsContent)
+   - components/ui/toast.tsx        (ToastProvider/Toast/ToastIcon)
+   - components/ui/skeleton.tsx     (Skeleton + CardSkeleton + StatSkeleton + ChartSkeleton)
+   - components/ui/progress.tsx     (Progress 进度条)
+   - components/ui/scroll-area.tsx  (ScrollArea + ScrollBar)
+
+   Dashboard组件 (5):
+   - components/dashboard/SearchBox.tsx       (搜索 + 筛选)
+   - components/dashboard/ChannelCard.tsx     (频道卡片)
+   - components/dashboard/VideoDrawer.tsx     (视频展开面板)
+   - components/dashboard/KPICards.tsx        (KPI概览)
+   - components/dashboard/GrowthChart.tsx     (增长趋势图)
+
+   Lab组件 (3):
+   - components/lab/UserProfileForm.tsx       (用户画像表单)
+   - components/lab/PathRecommendation.tsx    (路径推荐)
+   - components/lab/WorkflowDetail.tsx        (工作流展开)
+
+   Radar组件 (2):
+   - components/radar/MonitorList.tsx         (监控列表)
+   - components/radar/GrowthChart.tsx         (增长曲线)
+
+   Factory组件 (3):
+   - components/factory/TopicGenerator.tsx    (选题生成器)
+   - components/factory/ScriptEditor.tsx      (脚本编辑器)
+   - components/factory/StoryboardHelper.tsx  (分镜辅助)
+
+   页面 (7):
+   - app/layout.tsx             (根布局 + Sidebar + Toast)
+   - app/loading.tsx            (全局骨架屏)
+   - app/error.tsx              (错误边界)
+   - app/dashboard/page.tsx     (情报总控台)
+   - app/lab/page.tsx           (OCP实验室)
+   - app/radar/page.tsx         (竞品雷达)
+   - app/factory/page.tsx       (内容工厂)
+
+   静态资源 (1):
+   - assets/prompt_templates.json  (20个AI提示词模板)
+
+   =============================================================================
+   关键技术决策：
+   =============================================================================
+   
+   1. Next.js 14 App Router: Server Component 优先，减少客户端JS
+   2. Zustand 状态管理: 轻量级，无需Provider包裹
+   3. TailwindCSS + shadcn/ui: 暗色主题通过 CSS 变量切换
+   4. Recharts: 图表自动适配暗色主题
+   5. React Hook Form + Zod: 类型安全的表单校验
+   6. Framer Motion: 页面过渡动画 + 列表动画
+   7. next-themes: 暗色主题默认启用
+
+   暗色主题设计Token:
+   - bg-background: #0F172A (slate-900)
+   - bg-card: #111827 (gray-900)
+   - bg-accent: #1E293B (slate-800)
+   - text-foreground: #F8FAFC (slate-50)
+   - text-muted-foreground: #94A3B8 (slate-400)
+   - border-border: #334155 (slate-700)
+
+   =============================================================================
+*/
+`;
+
+// =============================================================================
+// 将所有模块组合到单一文件输出
+// =============================================================================
+
+const ALL_FILES = {
+  "package.json": packageJson,
+  "tailwind.config.ts": tailwindConfig,
+  "postcss.config.js": postcssConfig,
+  "tsconfig.json": tsconfigJson,
+  "next.config.js": nextConfig,
+  "app/globals.css": globalsCss,
+  "lib/utils.ts": libUtils,
+  "lib/api.ts": libApi,
+  "lib/store.ts": libStore,
+  "components/ui/button.tsx": uiButton,
+  "components/ui/card.tsx": uiCard,
+  "components/ui/input.tsx": uiInput,
+  "components/ui/badge.tsx": uiBadge,
+  "components/ui/drawer.tsx": uiDrawer,
+  "components/ui/tabs.tsx": uiTabs,
+  "components/ui/toast.tsx": uiToast,
+  "components/ui/skeleton.tsx": uiSkeleton,
+  "components/ui/progress.tsx": uiProgress,
+  "components/ui/scroll-area.tsx": uiScrollArea,
+  "components/dashboard/SearchBox.tsx": compSearchBox,
+  "components/dashboard/ChannelCard.tsx": compChannelCard,
+  "components/dashboard/VideoDrawer.tsx": compVideoDrawer,
+  "components/dashboard/KPICards.tsx": compKPICards,
+  "components/dashboard/GrowthChart.tsx": compGrowthChart,
+  "components/lab/UserProfileForm.tsx": compUserProfileForm,
+  "components/lab/PathRecommendation.tsx": compPathRecommendation,
+  "components/lab/WorkflowDetail.tsx": compWorkflowDetail,
+  "components/radar/MonitorList.tsx": compRadarMonitorList,
+  "components/radar/GrowthChart.tsx": compRadarGrowthChart,
+  "components/factory/TopicGenerator.tsx": compTopicGenerator,
+  "components/factory/ScriptEditor.tsx": compScriptEditor,
+  "components/factory/StoryboardHelper.tsx": compStoryboardHelper,
+  "app/layout.tsx": appLayout,
+  "app/loading.tsx": appLoading,
+  "app/error.tsx": appError,
+  "app/dashboard/page.tsx": appDashboardPage,
+  "app/lab/page.tsx": appLabPage,
+  "app/radar/page.tsx": appRadarPage,
+  "app/factory/page.tsx": appFactoryPage,
+  "assets/prompt_templates.json": promptTemplatesJson,
+  "README.md": DOCUMENTATION,
+};
+
+// 验证所有文件路径
+console.log("=== Code-Cluster-B 文件清单 ===");
+console.log(`总计: ${Object.keys(ALL_FILES).length} 个文件\n`);
+Object.keys(ALL_FILES).forEach((path, i) => {
+  const size = ALL_FILES[path as keyof typeof ALL_FILES].length;
+  console.log(`${String(i + 1).padStart(2, "0")}. ${path} (${(size / 1024).toFixed(1)} KB)\

@@ -1,0 +1,33 @@
+services:
+  tubefactory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-}
+        NEXT_PUBLIC_API_PREFIX: ${NEXT_PUBLIC_API_PREFIX:-/api/v1}
+    container_name: tubefactory-ocp
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+      - "${API_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      ENV: production
+      DATABASE_URL: sqlite+aiosqlite:////app/data/tubefactory.db
+      API_PORT: "8000"
+      WEB_PORT: "3000"
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-}
+      NEXT_PUBLIC_API_PREFIX: ${NEXT_PUBLIC_API_PREFIX:-/api/v1}
+      AUTO_SEED_ON_STARTUP: "true"
+      START_SCHEDULER_ON_STARTUP: "false"
+      HEALTH_CHECK_YOUTUBE_QUOTA: "false"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:$${API_PORT:-8000}/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

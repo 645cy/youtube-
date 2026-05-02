@@ -1,0 +1,1956 @@
+{
+  "project_name": "tubefactory-ocp",
+  "analysis_time": "2026-05-02T20:12:41.355921",
+  "dependency_graph": {
+    "internal_edges": {
+      "apps/web/app/ClientLayout.tsx": [
+        "apps/web/components/BackgroundLayer.tsx"
+      ]
+    },
+    "external_dependencies": {
+      "check_ai_features.py": [
+        "__future__",
+        "os",
+        "json",
+        "urllib.parse",
+        "urllib.request"
+      ],
+      "check_features.py": [
+        "__future__",
+        "os",
+        "json",
+        "urllib.parse",
+        "urllib.request"
+      ],
+      "check_frontend.py": [
+        "__future__",
+        "time",
+        "urllib.request",
+        "os"
+      ],
+      "apps/api/config.py": [
+        "__future__",
+        "pydantic_settings"
+      ],
+      "apps/api/main.py": [
+        "__future__",
+        "fastapi",
+        "contextlib",
+        "apps.api.config",
+        "fastapi.middleware.cors",
+        "logging",
+        "apps.api.routers",
+        "packages.db.schema"
+      ],
+      "apps/api/schemas.py": [
+        "pydantic",
+        "__future__",
+        "typing",
+        "datetime",
+        "apps.api.config"
+      ],
+      "apps/api/routers/analysis.py": [
+        "apps.api.schemas",
+        "pydantic",
+        "__future__",
+        "fastapi",
+        "time",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "apps.api.services.analyzer",
+        "datetime",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/channels.py": [
+        "apps.api.schemas",
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "datetime",
+        "asyncio",
+        "apps.api.config",
+        "logging",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/content_factory.py": [
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "apps.api.services.analyzer",
+        "datetime",
+        "apps.api.config",
+        "random",
+        "logging",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/crawler.py": [
+        "apps.api.schemas",
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "datetime",
+        "json",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/lab.py": [
+        "apps.api.schemas",
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "apps.api.services.recommender",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/radar.py": [
+        "apps.api.schemas",
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "apps.api.services.analyzer",
+        "datetime",
+        "json",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/routers/videos.py": [
+        "apps.api.schemas",
+        "__future__",
+        "fastapi",
+        "sqlalchemy.ext.asyncio",
+        "typing",
+        "json",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/seed/demo_cleanup.py": [
+        "__future__",
+        "pathlib",
+        "json",
+        "asyncio",
+        "apps.api.config",
+        "sys",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/seed/import_trending.py": [
+        "__future__",
+        "json",
+        "datetime",
+        "asyncio",
+        "os",
+        "logging",
+        "httpx",
+        "sys",
+        "apps.api.config"
+      ],
+      "apps/api/seed/seed_db.py": [
+        "__future__",
+        "datetime",
+        "json",
+        "asyncio",
+        "apps.api.config",
+        "logging",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/services/analyzer.py": [
+        "dataclasses",
+        "__future__",
+        "typing",
+        "datetime",
+        "math",
+        "re",
+        "collections"
+      ],
+      "apps/api/services/crawler_engine.py": [
+        "dataclasses",
+        "__future__",
+        "time",
+        "typing",
+        "httpx",
+        "asyncio",
+        "random",
+        "logging"
+      ],
+      "apps/api/services/recommender.py": [
+        "dataclasses",
+        "__future__",
+        "pathlib",
+        "typing",
+        "json",
+        "logging"
+      ],
+      "apps/api/services/scheduler.py": [
+        "__future__",
+        "sqlalchemy.ext.asyncio",
+        "apscheduler.schedulers.asyncio",
+        "datetime",
+        "apps.api.config",
+        "apscheduler.triggers.interval",
+        "logging",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "apps/api/services/youtube_api.py": [
+        "dataclasses",
+        "__future__",
+        "typing",
+        "os",
+        "json",
+        "asyncio",
+        "datetime",
+        "logging",
+        "enum"
+      ],
+      "apps/web/next.config.js": [
+        "next"
+      ],
+      "apps/web/tailwind.config.ts": [
+        "tailwindcss-animate"
+      ],
+      "apps/web/app/layout.tsx": [
+        "./globals.css"
+      ],
+      "packages/db/schema.py": [
+        "__future__",
+        "sqlalchemy.ext.asyncio",
+        "sqlalchemy.orm",
+        "typing",
+        "json",
+        "datetime",
+        "enum",
+        "sqlalchemy"
+      ],
+      "tmp/architecture_audit.py": [
+        "urllib.request",
+        "os"
+      ],
+      "tmp/check.py": [
+        "urllib.request"
+      ],
+      "tmp/check_api.py": [
+        "urllib.request"
+      ],
+      "tmp/check_api2.py": [
+        "urllib.request"
+      ],
+      "tmp/check_api3.py": [
+        "urllib.request"
+      ],
+      "tmp/check_viral.py": [
+        "urllib.request"
+      ],
+      "tmp/debug_viral.py": [
+        "urllib.request"
+      ],
+      "tmp/deep_audit.py": [
+        "urllib.request"
+      ],
+      "tmp/final_verify.py": [
+        "urllib.request"
+      ],
+      "tmp/find_dups.py": [
+        "re",
+        "collections"
+      ],
+      "tmp/quick_audit.py": [
+        "urllib.request",
+        "datetime"
+      ],
+      "tmp/seed_bulk.py": [
+        "datetime",
+        "asyncio",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "tmp/seed_demo.py": [
+        "datetime",
+        "asyncio",
+        "apps.api.config",
+        "sqlalchemy",
+        "packages.db.schema"
+      ],
+      "tmp/test_lab.py": [
+        "urllib.request"
+      ],
+      "tmp/verify.py": [
+        "urllib.request"
+      ],
+      "tmp/verify_fixes.py": [
+        "urllib.request",
+        "os"
+      ],
+      "tmp/verify_phase2.py": [
+        "subprocess"
+      ],
+      "tmp/verify_phase2_final.py": [
+        "urllib.request"
+      ]
+    }
+  },
+  "hotspots": [
+    {
+      "file": "apps/web/components/BackgroundLayer.tsx",
+      "referenced_by": 1
+    }
+  ],
+  "symbol_references": {
+    "api": 34,
+    "URL": 19,
+    "Date": 15,
+    "request_json": 13,
+    "from_json": 11,
+    "get_channel_videos": 7,
+    "EndpointCost": 7,
+    "onClose": 7,
+    "toStringArray": 7,
+    "getVideos": 7,
+    "SentimentResult": 5,
+    "SentimentAggregation": 5,
+    "formatRelativeTime": 5,
+    "CommentSentimentAnalyzer": 3,
+    "_time_match": 3,
+    "formatTime": 3,
+    "SentimentDetail": 3,
+    "SentimentBadge": 3,
+    "sentimentAnalysis": 3,
+    "publishTimeOptimization": 3,
+    "TimeoutError": 3,
+    "analyze": 3,
+    "recommend": 3,
+    "get_random": 2,
+    "ChannelCreate": 2,
+    "ChannelRead": 2,
+    "VideoCreate": 2,
+    "VideoRead": 2,
+    "MonitorJobCreate": 2,
+    "MonitorJobRead": 2,
+    "CrawlerTaskCreate": 2,
+    "CrawlerTaskRead": 2,
+    "CrawlerTaskRunRead": 2,
+    "AnalysisRequest": 2,
+    "ViralDetectionResult": 2,
+    "EvergreenResult": 2,
+    "MonetizationResult": 2,
+    "NicheScoreResult": 2,
+    "AnalysisResult": 2,
+    "MetricHistoryCreate": 2,
+    "MetricHistoryRead": 2,
+    "PathRecommendation": 2,
+    "RecommendationResponse": 2,
+    "AnalysisRequestExtended": 2,
+    "_task_read": 2,
+    "_get_recommender": 2,
+    "EvergreenDetectionResult": 2,
+    "NicheScoringResult": 2,
+    "LongTailEvergreenDetector": 2,
+    "ThumbnailCTREstimator": 2
+  },
+  "symbol_locations": {
+    "api": [
+      "check_ai_features.py",
+      "check_features.py",
+      "tmp/verify_phase2_final.py"
+    ],
+    "main": [
+      "check_ai_features.py",
+      "check_features.py",
+      "check_frontend.py"
+    ],
+    "request_json": [
+      "check_features.py"
+    ],
+    "Settings": [
+      "apps/api/config.py"
+    ],
+    "proxy_list": [
+      "apps/api/config.py"
+    ],
+    "ChannelCreate": [
+      "apps/api/schemas.py"
+    ],
+    "ChannelRead": [
+      "apps/api/schemas.py"
+    ],
+    "ChannelUpdate": [
+      "apps/api/schemas.py"
+    ],
+    "ChannelList": [
+      "apps/api/schemas.py"
+    ],
+    "VideoCreate": [
+      "apps/api/schemas.py"
+    ],
+    "VideoRead": [
+      "apps/api/schemas.py"
+    ],
+    "VideoList": [
+      "apps/api/schemas.py"
+    ],
+    "VideoFilter": [
+      "apps/api/schemas.py"
+    ],
+    "MonitorJobCreate": [
+      "apps/api/schemas.py"
+    ],
+    "MonitorJobRead": [
+      "apps/api/schemas.py"
+    ],
+    "MonitorWithChannel": [
+      "apps/api/schemas.py"
+    ],
+    "MonitorJobUpdate": [
+      "apps/api/schemas.py"
+    ],
+    "CrawlerTaskCreate": [
+      "apps/api/schemas.py"
+    ],
+    "CrawlerTaskRead": [
+      "apps/api/schemas.py"
+    ],
+    "CrawlerTaskRunRead": [
+      "apps/api/schemas.py"
+    ],
+    "AnalysisRequest": [
+      "apps/api/schemas.py"
+    ],
+    "ViralDetectionResult": [
+      "apps/api/schemas.py",
+      "apps/api/services/analyzer.py"
+    ],
+    "EvergreenResult": [
+      "apps/api/schemas.py"
+    ],
+    "SentimentResult": [
+      "apps/api/schemas.py",
+      "apps/api/services/analyzer.py"
+    ],
+    "SentimentAggregation": [
+      "apps/api/schemas.py"
+    ],
+    "MonetizationResult": [
+      "apps/api/schemas.py",
+      "apps/api/services/analyzer.py"
+    ],
+    "NicheScoreResult": [
+      "apps/api/schemas.py"
+    ],
+    "AnalysisResult": [
+      "apps/api/schemas.py"
+    ],
+    "MetricHistoryCreate": [
+      "apps/api/schemas.py"
+    ],
+    "MetricHistoryRead": [
+      "apps/api/schemas.py"
+    ],
+    "UserSkill": [
+      "apps/api/schemas.py"
+    ],
+    "UserProfile": [
+      "apps/api/schemas.py",
+      "apps/api/services/recommender.py"
+    ],
+    "PathRecommendation": [
+      "apps/api/schemas.py",
+      "apps/web/components/lab/PathRecommendation.tsx"
+    ],
+    "RecommendationResponse": [
+      "apps/api/schemas.py"
+    ],
+    "DashboardKPI": [
+      "apps/api/schemas.py"
+    ],
+    "validate_analysis_types": [
+      "apps/api/schemas.py"
+    ],
+    "AnalysisRequestExtended": [
+      "apps/api/routers/analysis.py"
+    ],
+    "_pick_thumbnail": [
+      "apps/api/routers/channels.py"
+    ],
+    "_missing_thumbnail": [
+      "apps/api/routers/channels.py"
+    ],
+    "_calculate_section_duration": [
+      "apps/api/routers/content_factory.py"
+    ],
+    "_get_equipment_checklist": [
+      "apps/api/routers/content_factory.py"
+    ],
+    "_match_title_template": [
+      "apps/api/routers/content_factory.py"
+    ],
+    "_generate_improved_titles": [
+      "apps/api/routers/content_factory.py"
+    ],
+    "_get_intent": [
+      "apps/api/routers/content_factory.py"
+    ],
+    "_task_read": [
+      "apps/api/routers/crawler.py"
+    ],
+    "_get_recommender": [
+      "apps/api/routers/lab.py"
+    ],
+    "_convert_profile": [
+      "apps/api/routers/lab.py"
+    ],
+    "_infer_difficulty": [
+      "apps/api/routers/lab.py"
+    ],
+    "youtube_search": [
+      "apps/api/seed/import_trending.py"
+    ],
+    "get_channel_details": [
+      "apps/api/seed/import_trending.py"
+    ],
+    "get_channel_videos": [
+      "apps/api/seed/import_trending.py"
+    ],
+    "get_video_stats": [
+      "apps/api/seed/import_trending.py"
+    ],
+    "VideoMetrics": [
+      "apps/api/services/analyzer.py"
+    ],
+    "KeywordMetrics": [
+      "apps/api/services/analyzer.py"
+    ],
+    "EvergreenDetectionResult": [
+      "apps/api/services/analyzer.py"
+    ],
+    "NicheMetrics": [
+      "apps/api/services/analyzer.py"
+    ],
+    "NicheScoringResult": [
+      "apps/api/services/analyzer.py"
+    ],
+    "ShortTermViralDetector": [
+      "apps/api/services/analyzer.py"
+    ],
+    "LongTailEvergreenDetector": [
+      "apps/api/services/analyzer.py"
+    ],
+    "CommentSentimentAnalyzer": [
+      "apps/api/services/analyzer.py"
+    ],
+    "MonetizationSignalDetector": [
+      "apps/api/services/analyzer.py"
+    ],
+    "NicheScoringCard": [
+      "apps/api/services/analyzer.py"
+    ],
+    "VideoFormatAnalyzer": [
+      "apps/api/services/analyzer.py"
+    ],
+    "ThumbnailCTREstimator": [
+      "apps/api/services/analyzer.py"
+    ],
+    "DashboardKPICalculator": [
+      "apps/api/services/analyzer.py"
+    ],
+    "SchedulerEngine": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_decay": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_calc_vri": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_calc_velocity": [
+      "apps/api/services/analyzer.py"
+    ],
+    "detect": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_norm_search": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_calc_ssi": [
+      "apps/api/services/analyzer.py"
+    ],
+    "__init__": [
+      "apps/api/services/analyzer.py",
+      "apps/api/services/crawler_engine.py",
+      "apps/api/services/recommender.py",
+      "apps/api/services/youtube_api.py"
+    ],
+    "_tokenize": [
+      "apps/api/services/analyzer.py"
+    ],
+    "analyze": [
+      "apps/api/services/analyzer.py"
+    ],
+    "batch_analyze": [
+      "apps/api/services/analyzer.py"
+    ],
+    "aggregate": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_extract_urls": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_check_affiliate": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_detect_coupons": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_traffic_potential": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_monetization_density": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_ai_replaceability": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_reproducibility": [
+      "apps/api/services/analyzer.py"
+    ],
+    "score": [
+      "apps/api/services/analyzer.py"
+    ],
+    "compare": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_swot": [
+      "apps/api/services/analyzer.py"
+    ],
+    "calculate_viral_coefficient": [
+      "apps/api/services/analyzer.py"
+    ],
+    "estimate": [
+      "apps/api/services/analyzer.py"
+    ],
+    "_tips": [
+      "apps/api/services/analyzer.py"
+    ],
+    "calculate": [
+      "apps/api/services/analyzer.py",
+      "apps/api/services/crawler_engine.py"
+    ],
+    "calculate_next_run": [
+      "apps/api/services/analyzer.py"
+    ],
+    "should_run": [
+      "apps/api/services/analyzer.py"
+    ],
+    "CrawlerPolicy": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "UserAgentRotator": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "ProxyProvider": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "ProxyPool": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "AdaptiveBackoff": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "SlidingWindowRateLimiter": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "CrawlerEngine": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "get_random": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "get_next": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "reset_failures": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "should_retry": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "_build_headers": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "get_stats": [
+      "apps/api/services/crawler_engine.py"
+    ],
+    "MonetizationPath": [
+      "apps/api/services/recommender.py"
+    ],
+    "PathMatchResult": [
+      "apps/api/services/recommender.py"
+    ],
+    "RecommendationOutput": [
+      "apps/api/services/recommender.py"
+    ],
+    "PathRecommender": [
+      "apps/api/services/recommender.py"
+    ],
+    "from_json": [
+      "apps/api/services/recommender.py"
+    ],
+    "_skill_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_time_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_budget_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_interest_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_equipment_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_personality_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_difficulty_match": [
+      "apps/api/services/recommender.py"
+    ],
+    "_roi_potential": [
+      "apps/api/services/recommender.py"
+    ],
+    "_calculate_score": [
+      "apps/api/services/recommender.py"
+    ],
+    "recommend": [
+      "apps/api/services/recommender.py",
+      "apps/web/lib/api.ts"
+    ],
+    "_generate_workflow": [
+      "apps/api/services/recommender.py"
+    ],
+    "load_default_paths": [
+      "apps/api/services/recommender.py"
+    ],
+    "get_scheduler": [
+      "apps/api/services/scheduler.py"
+    ],
+    "init_scheduler": [
+      "apps/api/services/scheduler.py"
+    ],
+    "shutdown_scheduler": [
+      "apps/api/services/scheduler.py"
+    ],
+    "EndpointCost": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "QuotaSnapshot": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "QuotaManager": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "YouTubeAPIClient": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "VideoMetadata": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "YTDLPMetaExtractor": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "AsyncYTDLPMetaExtractor": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "DualTrackExtractor": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "with_call": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "is_exhausted": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "reset_if_needed": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "snapshot": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "quota": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "_is_available": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "_fetch": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "extract_video": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "extract_playlist": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "extract_channel_uploads": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "_normalize": [
+      "apps/api/services/youtube_api.py"
+    ],
+    "ClientLayout": [
+      "apps/web/app/ClientLayout.tsx"
+    ],
+    "LayoutInner": [
+      "apps/web/app/ClientLayout.tsx"
+    ],
+    "handleToast": [
+      "apps/web/app/ClientLayout.tsx"
+    ],
+    "handleResize": [
+      "apps/web/app/ClientLayout.tsx"
+    ],
+    "if": [
+      "apps/web/app/ClientLayout.tsx",
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/app/dashboard/page.tsx",
+      "apps/web/app/factory/page.tsx",
+      "apps/web/app/lab/page.tsx",
+      "apps/web/app/radar/page.tsx",
+      "apps/web/app/workspace/page.tsx",
+      "apps/web/components/BackgroundLayer.tsx",
+      "apps/web/components/dashboard/GrowthChart.tsx",
+      "apps/web/components/dashboard/KPICards.tsx",
+      "apps/web/components/dashboard/SearchBox.tsx",
+      "apps/web/components/dashboard/VideoDrawer.tsx",
+      "apps/web/components/factory/StoryboardHelper.tsx",
+      "apps/web/components/lab/PathRecommendation.tsx",
+      "apps/web/components/radar/GrowthChart.tsx",
+      "apps/web/components/radar/MonitorList.tsx",
+      "apps/web/lib/mappers.ts",
+      "apps/web/lib/store.ts",
+      "apps/web/lib/utils.ts",
+      "apps/web/lib/api/request.ts"
+    ],
+    "reset": [
+      "apps/web/app/error.tsx"
+    ],
+    "RootLayout": [
+      "apps/web/app/layout.tsx"
+    ],
+    "Loading": [
+      "apps/web/app/loading.tsx"
+    ],
+    "HomePage": [
+      "apps/web/app/page.tsx"
+    ],
+    "statusTone": [
+      "apps/web/app/crawler/page.tsx"
+    ],
+    "formatTime": [
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/app/factory/page.tsx",
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "CrawlerPage": [
+      "apps/web/app/crawler/page.tsx"
+    ],
+    "catch": [
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/app/dashboard/page.tsx",
+      "apps/web/app/factory/page.tsx",
+      "apps/web/app/lab/page.tsx",
+      "apps/web/app/radar/page.tsx",
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx",
+      "apps/web/components/dashboard/SearchBox.tsx",
+      "apps/web/lib/api/request.ts"
+    ],
+    "createTask": [
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/lib/api.ts"
+    ],
+    "triggerTask": [
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/lib/api.ts"
+    ],
+    "deleteTask": [
+      "apps/web/app/crawler/page.tsx",
+      "apps/web/lib/api.ts"
+    ],
+    "DashboardPage": [
+      "apps/web/app/dashboard/page.tsx"
+    ],
+    "FactoryPage": [
+      "apps/web/app/factory/page.tsx"
+    ],
+    "String": [
+      "apps/web/app/factory/page.tsx"
+    ],
+    "floor": [
+      "apps/web/app/factory/page.tsx"
+    ],
+    "join": [
+      "apps/web/app/factory/page.tsx"
+    ],
+    "LabPage": [
+      "apps/web/app/lab/page.tsx"
+    ],
+    "StepIndicator": [
+      "apps/web/app/lab/page.tsx"
+    ],
+    "normalizeMonitors": [
+      "apps/web/app/radar/page.tsx"
+    ],
+    "for": [
+      "apps/web/app/radar/page.tsx",
+      "apps/web/components/BackgroundLayer.tsx",
+      "apps/web/lib/api/request.ts"
+    ],
+    "RadarPage": [
+      "apps/web/app/radar/page.tsx"
+    ],
+    "load": [
+      "apps/web/app/radar/page.tsx"
+    ],
+    "importYoutube": [
+      "apps/web/app/radar/page.tsx",
+      "apps/web/lib/api/channels.ts"
+    ],
+    "WorkspacePage": [
+      "apps/web/app/workspace/page.tsx"
+    ],
+    "FlowCard": [
+      "apps/web/app/workspace/page.tsx"
+    ],
+    "ReportTable": [
+      "apps/web/app/workspace/page.tsx"
+    ],
+    "BackgroundLayer": [
+      "apps/web/components/BackgroundLayer.tsx"
+    ],
+    "resize": [
+      "apps/web/components/BackgroundLayer.tsx"
+    ],
+    "initParticles": [
+      "apps/web/components/BackgroundLayer.tsx"
+    ],
+    "draw": [
+      "apps/web/components/BackgroundLayer.tsx"
+    ],
+    "onClose": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx",
+      "apps/web/components/dashboard/VideoDrawer.tsx"
+    ],
+    "VideoAnalysisPanel": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "run": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "getScore": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "round": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "ScoreCard": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "DetailSection": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "ViralDetail": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "EvergreenDetail": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "SentimentDetail": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "MonetizationDetail": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "SentimentBadge": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "KeyValue": [
+      "apps/web/components/analysis/VideoAnalysisPanel.tsx"
+    ],
+    "ChannelCard": [
+      "apps/web/components/dashboard/ChannelCard.tsx"
+    ],
+    "CustomTooltip": [
+      "apps/web/components/dashboard/GrowthChart.tsx",
+      "apps/web/components/radar/GrowthChart.tsx"
+    ],
+    "GrowthChart": [
+      "apps/web/components/dashboard/GrowthChart.tsx"
+    ],
+    "KPICards": [
+      "apps/web/components/dashboard/KPICards.tsx"
+    ],
+    "SearchBox": [
+      "apps/web/components/dashboard/SearchBox.tsx"
+    ],
+    "handleClickOutside": [
+      "apps/web/components/dashboard/SearchBox.tsx"
+    ],
+    "handleClear": [
+      "apps/web/components/dashboard/SearchBox.tsx"
+    ],
+    "handleSortChange": [
+      "apps/web/components/dashboard/SearchBox.tsx"
+    ],
+    "toggleSourceType": [
+      "apps/web/components/dashboard/SearchBox.tsx"
+    ],
+    "VideoDrawer": [
+      "apps/web/components/dashboard/VideoDrawer.tsx"
+    ],
+    "VideoListItem": [
+      "apps/web/components/dashboard/VideoDrawer.tsx"
+    ],
+    "handleOpenYoutube": [
+      "apps/web/components/dashboard/VideoDrawer.tsx"
+    ],
+    "handleAnalyze": [
+      "apps/web/components/dashboard/VideoDrawer.tsx"
+    ],
+    "onUpdate": [
+      "apps/web/components/factory/ScriptEditor.tsx",
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "ScriptEditor": [
+      "apps/web/components/factory/ScriptEditor.tsx"
+    ],
+    "updateSegment": [
+      "apps/web/components/factory/ScriptEditor.tsx"
+    ],
+    "addSegment": [
+      "apps/web/components/factory/ScriptEditor.tsx"
+    ],
+    "removeSegment": [
+      "apps/web/components/factory/ScriptEditor.tsx"
+    ],
+    "toggleExpand": [
+      "apps/web/components/factory/ScriptEditor.tsx"
+    ],
+    "StoryboardHelper": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "addItem": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "match": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "updateItem": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "removeItem": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "StoryboardRow": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "onEdit": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "onRemove": [
+      "apps/web/components/factory/StoryboardHelper.tsx"
+    ],
+    "onGenerate": [
+      "apps/web/components/factory/TopicGenerator.tsx"
+    ],
+    "TopicGenerator": [
+      "apps/web/components/factory/TopicGenerator.tsx"
+    ],
+    "handleGenerate": [
+      "apps/web/components/factory/TopicGenerator.tsx"
+    ],
+    "TopicCard": [
+      "apps/web/components/factory/TopicGenerator.tsx"
+    ],
+    "TopicSkeleton": [
+      "apps/web/components/factory/TopicGenerator.tsx"
+    ],
+    "onSelectPath": [
+      "apps/web/components/lab/PathRecommendation.tsx"
+    ],
+    "getMatchColor": [
+      "apps/web/components/lab/PathRecommendation.tsx"
+    ],
+    "getMatchLabel": [
+      "apps/web/components/lab/PathRecommendation.tsx"
+    ],
+    "CardSkeleton": [
+      "apps/web/components/lab/PathRecommendation.tsx",
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "onSubmit": [
+      "apps/web/components/lab/UserProfileForm.tsx"
+    ],
+    "UserProfileForm": [
+      "apps/web/components/lab/UserProfileForm.tsx"
+    ],
+    "toggleArrayValue": [
+      "apps/web/components/lab/UserProfileForm.tsx"
+    ],
+    "StepStatusIcon": [
+      "apps/web/components/lab/WorkflowDetail.tsx"
+    ],
+    "switch": [
+      "apps/web/components/lab/WorkflowDetail.tsx",
+      "apps/web/components/ui/toast.tsx"
+    ],
+    "WorkflowDetail": [
+      "apps/web/components/lab/WorkflowDetail.tsx"
+    ],
+    "toggleStep": [
+      "apps/web/components/lab/WorkflowDetail.tsx"
+    ],
+    "toggleStepStatus": [
+      "apps/web/components/lab/WorkflowDetail.tsx"
+    ],
+    "RadarGrowthChart": [
+      "apps/web/components/radar/GrowthChart.tsx"
+    ],
+    "MonitorList": [
+      "apps/web/components/radar/MonitorList.tsx"
+    ],
+    "handleAdd": [
+      "apps/web/components/radar/MonitorList.tsx"
+    ],
+    "Badge": [
+      "apps/web/components/ui/badge.tsx"
+    ],
+    "SheetHeader": [
+      "apps/web/components/ui/drawer.tsx"
+    ],
+    "SheetFooter": [
+      "apps/web/components/ui/drawer.tsx"
+    ],
+    "Skeleton": [
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "StatSkeleton": [
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "ChartSkeleton": [
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "SidebarSkeleton": [
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "TableRowSkeleton": [
+      "apps/web/components/ui/skeleton.tsx"
+    ],
+    "ToastIcon": [
+      "apps/web/components/ui/toast.tsx"
+    ],
+    "list": [
+      "apps/web/lib/api.ts",
+      "apps/web/lib/api/channels.ts"
+    ],
+    "get": [
+      "apps/web/lib/api.ts",
+      "apps/web/lib/api/channels.ts"
+    ],
+    "create": [
+      "apps/web/lib/api.ts",
+      "apps/web/lib/api/channels.ts"
+    ],
+    "importBatch": [
+      "apps/web/lib/api.ts"
+    ],
+    "delete": [
+      "apps/web/lib/api.ts",
+      "apps/web/lib/api/channels.ts"
+    ],
+    "getDashboardKPI": [
+      "apps/web/lib/api.ts"
+    ],
+    "viralDetection": [
+      "apps/web/lib/api.ts"
+    ],
+    "evergreenDetection": [
+      "apps/web/lib/api.ts"
+    ],
+    "sentimentAnalysis": [
+      "apps/web/lib/api.ts"
+    ],
+    "monetizationDetection": [
+      "apps/web/lib/api.ts"
+    ],
+    "fullAnalysis": [
+      "apps/web/lib/api.ts"
+    ],
+    "getHistory": [
+      "apps/web/lib/api.ts"
+    ],
+    "getGrowth": [
+      "apps/web/lib/api.ts"
+    ],
+    "formatCoefficient": [
+      "apps/web/lib/api.ts"
+    ],
+    "thumbnailCTR": [
+      "apps/web/lib/api.ts"
+    ],
+    "listMonitors": [
+      "apps/web/lib/api.ts"
+    ],
+    "createMonitor": [
+      "apps/web/lib/api.ts"
+    ],
+    "getMonitor": [
+      "apps/web/lib/api.ts"
+    ],
+    "updateMonitor": [
+      "apps/web/lib/api.ts"
+    ],
+    "deleteMonitor": [
+      "apps/web/lib/api.ts"
+    ],
+    "triggerMonitor": [
+      "apps/web/lib/api.ts"
+    ],
+    "compareChannels": [
+      "apps/web/lib/api.ts"
+    ],
+    "getMonitorLogs": [
+      "apps/web/lib/api.ts"
+    ],
+    "listPaths": [
+      "apps/web/lib/api.ts"
+    ],
+    "getPath": [
+      "apps/web/lib/api.ts"
+    ],
+    "createProfile": [
+      "apps/web/lib/api.ts"
+    ],
+    "quickMatch": [
+      "apps/web/lib/api.ts"
+    ],
+    "topicDiscovery": [
+      "apps/web/lib/api.ts"
+    ],
+    "listScriptTemplates": [
+      "apps/web/lib/api.ts"
+    ],
+    "getScriptTemplate": [
+      "apps/web/lib/api.ts"
+    ],
+    "generateShotList": [
+      "apps/web/lib/api.ts"
+    ],
+    "optimizeTitle": [
+      "apps/web/lib/api.ts"
+    ],
+    "getSEOKeywords": [
+      "apps/web/lib/api.ts"
+    ],
+    "aiScriptGenerate": [
+      "apps/web/lib/api.ts"
+    ],
+    "thumbnailSuggestions": [
+      "apps/web/lib/api.ts"
+    ],
+    "publishTimeOptimization": [
+      "apps/web/lib/api.ts"
+    ],
+    "humanReviewChecklist": [
+      "apps/web/lib/api.ts"
+    ],
+    "check": [
+      "apps/web/lib/api.ts",
+      "tmp/architecture_audit.py"
+    ],
+    "listTasks": [
+      "apps/web/lib/api.ts"
+    ],
+    "listRuns": [
+      "apps/web/lib/api.ts"
+    ],
+    "toNumber": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "toStringArray": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "filter": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "mapChannelToIntelChannel": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "mapVideoToVideoItem": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "mapMonitorToRadarChannel": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "createWorkflowSteps": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "slice": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "mapPathToOCPPath": [
+      "apps/web/lib/mappers.ts"
+    ],
+    "toggleSidebar": [
+      "apps/web/lib/store.ts"
+    ],
+    "setSidebarOpen": [
+      "apps/web/lib/store.ts"
+    ],
+    "setActiveNav": [
+      "apps/web/lib/store.ts"
+    ],
+    "showToast": [
+      "apps/web/lib/store.ts",
+      "apps/web/lib/api/request.ts"
+    ],
+    "clearToast": [
+      "apps/web/lib/store.ts"
+    ],
+    "setLoading": [
+      "apps/web/lib/store.ts"
+    ],
+    "setChannels": [
+      "apps/web/lib/store.ts"
+    ],
+    "selectChannel": [
+      "apps/web/lib/store.ts"
+    ],
+    "setSearchQuery": [
+      "apps/web/lib/store.ts"
+    ],
+    "setSearchFilters": [
+      "apps/web/lib/store.ts"
+    ],
+    "setTags": [
+      "apps/web/lib/store.ts"
+    ],
+    "toggleTag": [
+      "apps/web/lib/store.ts"
+    ],
+    "setKPIs": [
+      "apps/web/lib/store.ts"
+    ],
+    "setGrowthData": [
+      "apps/web/lib/store.ts"
+    ],
+    "filteredChannels": [
+      "apps/web/lib/store.ts"
+    ],
+    "setUserProfile": [
+      "apps/web/lib/store.ts"
+    ],
+    "setRecommendedPaths": [
+      "apps/web/lib/store.ts"
+    ],
+    "selectPath": [
+      "apps/web/lib/store.ts"
+    ],
+    "setWorkflowSteps": [
+      "apps/web/lib/store.ts"
+    ],
+    "setGenerating": [
+      "apps/web/lib/store.ts"
+    ],
+    "getSelectedPath": [
+      "apps/web/lib/store.ts"
+    ],
+    "setMonitoredChannels": [
+      "apps/web/lib/store.ts"
+    ],
+    "setActiveTab": [
+      "apps/web/lib/store.ts"
+    ],
+    "setTopics": [
+      "apps/web/lib/store.ts"
+    ],
+    "setScriptSegments": [
+      "apps/web/lib/store.ts"
+    ],
+    "setStoryboardItems": [
+      "apps/web/lib/store.ts"
+    ],
+    "toast": [
+      "apps/web/lib/toast.ts"
+    ],
+    "toastSuccess": [
+      "apps/web/lib/toast.ts"
+    ],
+    "toastError": [
+      "apps/web/lib/toast.ts"
+    ],
+    "toastWarning": [
+      "apps/web/lib/toast.ts"
+    ],
+    "toastInfo": [
+      "apps/web/lib/toast.ts"
+    ],
+    "cn": [
+      "apps/web/lib/utils.ts"
+    ],
+    "formatNumber": [
+      "apps/web/lib/utils.ts"
+    ],
+    "formatDate": [
+      "apps/web/lib/utils.ts"
+    ],
+    "formatCompactNumber": [
+      "apps/web/lib/utils.ts"
+    ],
+    "Date": [
+      "apps/web/lib/utils.ts"
+    ],
+    "formatRelativeTime": [
+      "apps/web/lib/utils.ts"
+    ],
+    "sleep": [
+      "apps/web/lib/utils.ts"
+    ],
+    "search": [
+      "apps/web/lib/api/channels.ts"
+    ],
+    "update": [
+      "apps/web/lib/api/channels.ts"
+    ],
+    "getStats": [
+      "apps/web/lib/api/channels.ts"
+    ],
+    "getVideos": [
+      "apps/web/lib/api/channels.ts"
+    ],
+    "bulkDiscover": [
+      "apps/web/lib/api/channels.ts"
+    ],
+    "buildUrl": [
+      "apps/web/lib/api/request.ts"
+    ],
+    "replace": [
+      "apps/web/lib/api/request.ts"
+    ],
+    "URL": [
+      "apps/web/lib/api/request.ts"
+    ],
+    "TimeoutError": [
+      "apps/web/lib/api/request.ts",
+      "apps/web/lib/api/types.ts"
+    ],
+    "ApiError": [
+      "apps/web/lib/api/types.ts"
+    ],
+    "constructor": [
+      "apps/web/lib/api/types.ts"
+    ],
+    "MonitorStatus": [
+      "packages/db/schema.py"
+    ],
+    "JobType": [
+      "packages/db/schema.py"
+    ],
+    "AnalysisType": [
+      "packages/db/schema.py"
+    ],
+    "MetricType": [
+      "packages/db/schema.py"
+    ],
+    "CrawlerTaskStatus": [
+      "packages/db/schema.py"
+    ],
+    "CrawlerRunStatus": [
+      "packages/db/schema.py"
+    ],
+    "Base": [
+      "packages/db/schema.py"
+    ],
+    "Channel": [
+      "packages/db/schema.py"
+    ],
+    "Video": [
+      "packages/db/schema.py"
+    ],
+    "MonitorJob": [
+      "packages/db/schema.py"
+    ],
+    "CrawlerTask": [
+      "packages/db/schema.py"
+    ],
+    "CrawlerTaskRun": [
+      "packages/db/schema.py"
+    ],
+    "AnalysisLog": [
+      "packages/db/schema.py"
+    ],
+    "MetricHistory": [
+      "packages/db/schema.py"
+    ],
+    "now_utc": [
+      "packages/db/schema.py"
+    ],
+    "get_engine": [
+      "packages/db/schema.py"
+    ],
+    "get_sessionmaker": [
+      "packages/db/schema.py"
+    ],
+    "curl": [
+      "tmp/verify_phase2.py"
+    ]
+  },
+  "api_contracts": {
+    "frontend_calls": [
+      {
+        "file": "apps/web/lib/api.ts",
+        "endpoints": [
+          "/api/v1/content-factory/ai-script",
+          "/api/v1/videos",
+          "/api/v1/analysis/thumbnail-ctr",
+          "/api/v1/content-factory/publish-time-optimization",
+          "/api/v1/content-factory/seo-keywords",
+          "/api/v1/radar/compare",
+          "/api/v1/analysis/history",
+          "/api/v1/crawler/tasks",
+          "/api/v1/analysis/format-coefficient",
+          "/api/v1/lab/profile",
+          "/api/v1/lab/quick-match",
+          "/api/v1/radar/monitors",
+          "/api/v1/analysis/sentiment",
+          "/api/v1/content-factory/topic-discovery",
+          "/api/v1/channels/tags",
+          "/api/v1/analysis/evergreen",
+          "/api/v1/analysis/dashboard",
+          "/api/v1/analysis/growth",
+          "/api/v1/analysis/full-analysis",
+          "/api/v1/videos/import-batch",
+          "/api/v1/lab/paths",
+          "/api/v1/content-factory/script-templates",
+          "/api/v1/content-factory/thumbnail-suggestions",
+          "/api/v1/analysis/monetization",
+          "/api/v1/content-factory/human-review-checklist",
+          "/api/v1/content-factory/shot-list",
+          "/api/v1/analysis/viral-detection",
+          "/api/v1/lab/recommend",
+          "/api/v1/content-factory/title-optimization"
+        ],
+        "methods": [
+          "DELETE",
+          "get",
+          "PUT",
+          "delete",
+          "POST"
+        ]
+      }
+    ],
+    "backend_routes": [
+      {
+        "file": "apps/api/routers/analysis.py",
+        "routes": [
+          {
+            "method": "POST",
+            "path": "/viral-detection"
+          },
+          {
+            "method": "POST",
+            "path": "/evergreen"
+          },
+          {
+            "method": "POST",
+            "path": "/sentiment"
+          },
+          {
+            "method": "POST",
+            "path": "/monetization"
+          },
+          {
+            "method": "POST",
+            "path": "/niche-score"
+          },
+          {
+            "method": "POST",
+            "path": "/full-analysis"
+          },
+          {
+            "method": "GET",
+            "path": "/history"
+          },
+          {
+            "method": "POST",
+            "path": "/format-coefficient"
+          },
+          {
+            "method": "POST",
+            "path": "/thumbnail-ctr"
+          },
+          {
+            "method": "GET",
+            "path": "/dashboard"
+          },
+          {
+            "method": "GET",
+            "path": "/growth"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/channels.py",
+        "routes": [
+          {
+            "method": "POST",
+            "path": "/search"
+          },
+          {
+            "method": "GET",
+            "path": "/tags"
+          },
+          {
+            "method": "POST",
+            "path": "/import-youtube"
+          },
+          {
+            "method": "POST",
+            "path": "/backfill-thumbnails"
+          },
+          {
+            "method": "POST",
+            "path": "/bulk-discover"
+          },
+          {
+            "method": "POST",
+            "path": "/repair-thumbnails"
+          },
+          {
+            "method": "GET",
+            "path": "/{channel_id}"
+          },
+          {
+            "method": "PUT",
+            "path": "/{channel_id}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/{channel_id}"
+          },
+          {
+            "method": "GET",
+            "path": "/{channel_id}/stats"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/content_factory.py",
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/topic-discovery"
+          },
+          {
+            "method": "GET",
+            "path": "/script-templates"
+          },
+          {
+            "method": "GET",
+            "path": "/script-templates/{template_id}"
+          },
+          {
+            "method": "POST",
+            "path": "/shot-list"
+          },
+          {
+            "method": "POST",
+            "path": "/title-optimization"
+          },
+          {
+            "method": "GET",
+            "path": "/seo-keywords"
+          },
+          {
+            "method": "POST",
+            "path": "/ai-script"
+          },
+          {
+            "method": "POST",
+            "path": "/thumbnail-suggestions"
+          },
+          {
+            "method": "POST",
+            "path": "/publish-time-optimization"
+          },
+          {
+            "method": "GET",
+            "path": "/human-review-checklist"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/crawler.py",
+        "routes": [
+          {
+            "method": "POST",
+            "path": "/tasks"
+          },
+          {
+            "method": "GET",
+            "path": "/tasks"
+          },
+          {
+            "method": "GET",
+            "path": "/tasks/{task_id}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/tasks/{task_id}"
+          },
+          {
+            "method": "POST",
+            "path": "/tasks/{task_id}/trigger"
+          },
+          {
+            "method": "GET",
+            "path": "/tasks/{task_id}/runs"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/lab.py",
+        "routes": [
+          {
+            "method": "POST",
+            "path": "/profile"
+          },
+          {
+            "method": "POST",
+            "path": "/recommend"
+          },
+          {
+            "method": "GET",
+            "path": "/paths"
+          },
+          {
+            "method": "GET",
+            "path": "/paths/{path_id}"
+          },
+          {
+            "method": "POST",
+            "path": "/quick-match"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/radar.py",
+        "routes": [
+          {
+            "method": "POST",
+            "path": "/monitors"
+          },
+          {
+            "method": "GET",
+            "path": "/monitors"
+          },
+          {
+            "method": "GET",
+            "path": "/monitors/{job_id}"
+          },
+          {
+            "method": "PUT",
+            "path": "/monitors/{job_id}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/monitors/{job_id}"
+          },
+          {
+            "method": "POST",
+            "path": "/monitors/{job_id}/trigger"
+          },
+          {
+            "method": "GET",
+            "path": "/compare"
+          },
+          {
+            "method": "GET",
+            "path": "/monitors/{job_id}/logs"
+          }
+        ]
+      },
+      {
+        "file": "apps/api/routers/videos.py",
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/{video_id}"
+          },
+          {
+            "method": "POST",
+            "path": "/import-batch"
+          },
+          {
+            "method": "DELETE",
+            "path": "/{video_id}"
+          }
+        ]
+      }
+    ]
+  },
+  "complexity_ranking": [
+    {
+      "file": "apps/api/schemas.py",
+      "lines": 437,
+      "classes": 30,
+      "functions": 1,
+      "complexity_score": 99.7
+    },
+    {
+      "file": "apps/api/services/analyzer.py",
+      "lines": 862,
+      "classes": 17,
+      "functions": 27,
+      "complexity_score": 95.2
+    },
+    {
+      "file": "apps/web/lib/api.ts",
+      "lines": 584,
+      "classes": 0,
+      "functions": 44,
+      "complexity_score": 55.7
+    },
+    {
+      "file": "packages/db/schema.py",
+      "lines": 409,
+      "classes": 14,
+      "functions": 3,
+      "complexity_score": 53.2
+    },
+    {
+      "file": "apps/api/services/youtube_api.py",
+      "lines": 549,
+      "classes": 8,
+      "functions": 12,
+      "complexity_score": 47.0
+    },
+    {
+      "file": "apps/api/services/recommender.py",
+      "lines": 600,
+      "classes": 5,
+      "functions": 14,
+      "complexity_score": 41.0
+    },
+    {
+      "file": "apps/api/services/crawler_engine.py",
+      "lines": 338,
+      "classes": 7,
+      "functions": 8,
+      "complexity_score": 35.8
+    },
+    {
+      "file": "apps/web/lib/store.ts",
+      "lines": 383,
+      "classes": 0,
+      "functions": 27,
+      "complexity_score": 34.7
+    },
+    {
+      "file": "apps/api/routers/content_factory.py",
+      "lines": 1011,
+      "classes": 0,
+      "functions": 5,
+      "complexity_score": 25.2
+    },
+    {
+      "file": "apps/web/components/analysis/VideoAnalysisPanel.tsx",
+      "lines": 389,
+      "classes": 0,
+      "functions": 14,
+      "complexity_score": 21.8
+    },
+    {
+      "file": "apps/web/components/factory/StoryboardHelper.tsx",
+      "lines": 339,
+      "classes": 0,
+      "functions": 11,
+      "complexity_score": 17.8
+    },
+    {
+      "file": "apps/web/app/factory/page.tsx",
+      "lines": 463,
+      "classes": 0,
+      "functions": 7,
+      "complexity_score": 16.3
+    },
+    {
+      "file": "apps/api/routers/analysis.py",
+      "lines": 652,
+      "classes": 1,
+      "functions": 0,
+      "complexity_score": 16.0
+    },
+    {
+      "file": "apps/web/app/crawler/page.tsx",
+      "lines": 303,
+      "classes": 0,
+      "functions": 8,
+      "complexity_score": 14.1
+    },
+    {
+      "file": "apps/api/routers/channels.py",
+      "lines": 577,
+      "classes": 0,
+      "functions": 2,
+      "complexity_score": 13.5
+    },
+    {
+      "file": "apps/web/lib/mappers.ts",
+      "lines": 160,
+      "classes": 0,
+      "functions": 10,
+      "complexity_score": 13.2
+    },
+    {
+      "file": "apps/web/components/dashboard/SearchBox.tsx",
+      "lines": 274,
+      "classes": 0,
+      "functions": 7,
+      "complexity_score": 12.5
+    },
+    {
+      "file": "apps/web/app/ClientLayout.tsx",
+      "lines": 353,
+      "classes": 0,
+      "functions": 5,
+      "complexity_score": 12.1
+    },
+    {
+      "file": "apps/web/components/factory/ScriptEditor.tsx",
+      "lines": 297,
+      "classes": 0,
+      "functions": 6,
+      "complexity_score": 11.9
+    },
+    {
+      "file": "apps/web/app/lab/page.tsx",
+      "lines": 375,
+      "classes": 0,
+      "functions": 4,
+      "complexity_score": 11.5
+    }
+  ]
+}
