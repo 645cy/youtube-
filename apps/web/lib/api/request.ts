@@ -83,7 +83,13 @@ async function requestFresh<T>(
         }
         throw new ApiError(message, response.status)
       }
-      if (!cacheKey) getCache.clear() // CRG: Mutations invalidate short-lived GET cache so UI refreshes do not reuse stale reads.
+      if (!cacheKey) {
+        // CRG: Mutations invalidate related GET caches by URL prefix for finer-grained cache invalidation.
+        const prefix = url.split("?")[0]
+        for (const key of getCache.keys()) {
+          if (key.startsWith(prefix)) getCache.delete(key)
+        }
+      }
       return response.status === 204 ? (undefined as T) : ((await response.json()) as T)
     } catch (err) {
       lastError = err instanceof Error && err.name === "AbortError" ? new TimeoutError() : (err as Error)

@@ -164,9 +164,7 @@ export const useAppStore = create<AppState>((set) => ({
   showToast: (type, message) => {
     set({ toast: { type, message } })
     // 3秒后自动清除（Zustand 不绑定组件生命周期，简单 timeout 即可）
-    const timer = setTimeout(() => set({ toast: null }), 3000)
-    // 返回 timer 以便外部需要时清理（此处仅作记录，不影响现有行为）
-    return timer
+    setTimeout(() => set({ toast: null }), 3000)
   },
   clearToast: () => set({ toast: null }),
   setLoading: (loading) => set({ isLoading: loading }),
