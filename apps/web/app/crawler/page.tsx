@@ -322,10 +322,10 @@ export default function CrawlerPage() {
         </div>
 
         <div className="flex items-center gap-1 mt-4">
-          <button onClick={() => setActiveTab("tasks")} className={`px-4 py-1.5 text-sm rounded-md transition-colors font-sans tracking-wide ${activeTab === "tasks" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-primary"}`}>
+          <button type="button" onClick={() => setActiveTab("tasks")} className={`px-4 py-1.5 text-sm rounded-md transition-colors font-sans tracking-wide ${activeTab === "tasks" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-primary"}`}>
             任务中心
           </button>
-          <button onClick={() => setActiveTab("analytics")} className={`px-4 py-1.5 text-sm rounded-md transition-colors font-sans tracking-wide ${activeTab === "analytics" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-primary"}`}>
+          <button type="button" onClick={() => setActiveTab("analytics")} className={`px-4 py-1.5 text-sm rounded-md transition-colors font-sans tracking-wide ${activeTab === "analytics" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-primary"}`}>
             智能分析
           </button>
         </div>
