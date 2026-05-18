@@ -18,7 +18,7 @@ eggs/
 # CRG: Root Python build dirs only; do not ignore apps/web/lib source modules.
 /lib/
 /lib64/
-parts/
+/parts/
 sdist/
 var/
 wheels/
