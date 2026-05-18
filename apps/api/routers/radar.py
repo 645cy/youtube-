@@ -170,86 +170,17 @@ async def trigger_monitor(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> dict[str, Any]:
     """手动触发监控任务 (获取频道最新视频)."""
-    result = await session.execute(select(MonitorJob).where(MonitorJob.id == job_id))
-    job = result.scalar_one_or_none()
-    if not job:
-        raise HTTPException(status_code=404, detail=f"Monitor job {job_id} not found")
-
-    ch_result = await session.execute(select(Channel).where(Channel.id == job.channel_id))
-    channel = ch_result.scalar_one_or_none()
-    if not channel:
-        raise HTTPException(status_code=404, detail=f"Channel {job.channel_id} not found")
-
-    # 使用双轨提取器获取最新视频
-    from apps.api.services.youtube_api import DualTrackExtractor
-    source_status = "skipped"
-    source_message = ""
-    api_result: dict[str, Any] = {"items": []}
-
-    # 通过频道 uploads 播放列表获取
-    uploads_playlist_id = f"UU{channel.youtube_id[2:]}" if channel.youtube_id.startswith("UC") else None
-    if uploads_playlist_id and settings.YOUTUBE_API_KEY:
-        try:
-            extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
-            api_result = await extractor._api.playlist_items_list(
-                uploads_playlist_id,
-                max_results=settings.RADAR_TRIGGER_MAX_RESULTS,
-            )
-            source_status = "youtube_api"
-        except Exception as exc:
-            source_status = "api_error"
-            source_message = str(exc)
-    elif not settings.YOUTUBE_API_KEY:
-        source_message = "YOUTUBE_API_KEY is not configured; monitor timestamp was refreshed without remote fetch."
-    else:
-        source_message = "Channel youtube_id is not a UC channel id; uploads playlist cannot be derived."
-
-    new_videos = []
-    for item in api_result.get("items", []):
-        snippet = item.get("snippet", {})
-        video_id = snippet.get("resourceId", {}).get("videoId", "")
-        if not video_id:
-            continue
-        # 检查是否已存在
-        existing = await session.execute(
-            select(Video).where(Video.youtube_id == video_id)
-        )
-        if existing.scalar_one_or_none():
-            continue
-        new_videos.append({
-            "youtube_id": video_id,
-            "title": snippet.get("title", ""),
-            "thumbnail_url": snippet.get("thumbnails", {}).get("high", {}).get("url"),
-            "published_at": snippet.get("publishedAt"),
-        })
+    job = await _load_monitor_job(session, job_id)
+    channel = await _load_monitor_channel(session, job.channel_id)
+    source_status, source_message, api_items = await _fetch_monitor_upload_items(channel)
+    new_videos = await _extract_new_radar_videos(session, api_items)
 
     # 更新任务执行时间
-    job.last_run_at = datetime.utcnow()
-    job.next_run_at = SchedulerEngine.calculate_next_run(
-        job.last_run_at, 60, 2.0  # 假设周更 2 视频
+    _refresh_monitor_schedule(job)
+    crawler_task, crawler_run = await _record_radar_crawler_run(
+        session, job, channel, source_status, source_message, new_videos
     )
-    crawler_task = await _ensure_crawler_task_for_monitor(session, job, channel)
-    crawler_payload = {
-        "source_status": source_status,
-        "message": source_message,
-        "items": new_videos,
-        "monitor_job_id": job_id,
-        "channel_id": channel.id,
-        "channel_title": channel.title,
-    }
-    crawler_run = CrawlerTaskRun(
-        task_id=crawler_task.id,
-        status=CrawlerRunStatus.SUCCESS,
-        source_status=source_status,
-        message=source_message or f"Radar check completed for {channel.title}.",
-        items_found=len(new_videos),
-        result_json=json.dumps(crawler_payload, ensure_ascii=False),
-        finished_at=datetime.utcnow(),
-    )
-    session.add(crawler_run)
-    crawler_task.last_run_at = crawler_run.finished_at
-    await session.flush()
-    await session.refresh(crawler_run)
+    # CRG: Trigger route now orchestrates helpers instead of owning fetch/parsing/persistence branches.
 
     return {
         "job_id": job_id,
@@ -262,6 +193,70 @@ async def trigger_monitor(
         "new_videos": new_videos,
         "next_run_at": job.next_run_at.isoformat() if job.next_run_at else None,
     }
+
+
+async def _load_monitor_job(session: AsyncSession, job_id: int) -> MonitorJob:
+    result = await session.execute(select(MonitorJob).where(MonitorJob.id == job_id))
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Monitor job {job_id} not found")
+    return job
+
+
+async def _load_monitor_channel(session: AsyncSession, channel_id: int) -> Channel:
+    result = await session.execute(select(Channel).where(Channel.id == channel_id))
+    channel = result.scalar_one_or_none()
+    if not channel:
+        raise HTTPException(status_code=404, detail=f"Channel {channel_id} not found")
+    return channel
+
+
+async def _fetch_monitor_upload_items(channel: Channel) -> tuple[str, str, list[dict[str, Any]]]:
+    uploads_playlist_id = f"UU{channel.youtube_id[2:]}" if channel.youtube_id.startswith("UC") else None
+    if not settings.YOUTUBE_API_KEY:
+        return "skipped", "YOUTUBE_API_KEY is not configured; monitor timestamp was refreshed without remote fetch.", []
+    if not uploads_playlist_id:
+        return "skipped", "Channel youtube_id is not a UC channel id; uploads playlist cannot be derived.", []
+
+    try:
+        from apps.api.services.youtube_api import DualTrackExtractor
+        extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
+        api_result = await extractor._api.playlist_items_list(
+            uploads_playlist_id,
+            max_results=settings.RADAR_TRIGGER_MAX_RESULTS,
+        )
+        # CRG: Isolate external YouTube fetch so trigger persistence stays testable.
+        return "youtube_api", "", api_result.get("items", [])
+    except Exception as exc:
+        return "api_error", str(exc), []
+
+
+async def _extract_new_radar_videos(
+    session: AsyncSession,
+    api_items: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    new_videos = []
+    for item in api_items:
+        snippet = item.get("snippet", {})
+        video_id = snippet.get("resourceId", {}).get("videoId", "")
+        if not video_id:
+            continue
+        existing = await session.execute(select(Video).where(Video.youtube_id == video_id))
+        if existing.scalar_one_or_none():
+            continue
+        # CRG: Keep duplicate filtering in one helper before writing crawler-run evidence.
+        new_videos.append({
+            "youtube_id": video_id,
+            "title": snippet.get("title", ""),
+            "thumbnail_url": snippet.get("thumbnails", {}).get("high", {}).get("url"),
+            "published_at": snippet.get("publishedAt"),
+        })
+    return new_videos
+
+
+def _refresh_monitor_schedule(job: MonitorJob) -> None:
+    job.last_run_at = datetime.utcnow()
+    job.next_run_at = SchedulerEngine.calculate_next_run(job.last_run_at, 60, 2.0)
 
 
 async def _ensure_crawler_task_for_monitor(
@@ -293,6 +288,40 @@ async def _ensure_crawler_task_for_monitor(
     await session.flush()
     await session.refresh(task)
     return task
+
+
+async def _record_radar_crawler_run(
+    session: AsyncSession,
+    job: MonitorJob,
+    channel: Channel,
+    source_status: str,
+    source_message: str,
+    new_videos: list[dict[str, Any]],
+) -> tuple[CrawlerTask, CrawlerTaskRun]:
+    crawler_task = await _ensure_crawler_task_for_monitor(session, job, channel)
+    crawler_payload = {
+        "source_status": source_status,
+        "message": source_message,
+        "items": new_videos,
+        "monitor_job_id": job.id,
+        "channel_id": channel.id,
+        "channel_title": channel.title,
+    }
+    crawler_run = CrawlerTaskRun(
+        task_id=crawler_task.id,
+        status=CrawlerRunStatus.SUCCESS,
+        source_status=source_status,
+        message=source_message or f"Radar check completed for {channel.title}.",
+        items_found=len(new_videos),
+        result_json=json.dumps(crawler_payload, ensure_ascii=False),
+        finished_at=datetime.utcnow(),
+    )
+    session.add(crawler_run)
+    crawler_task.last_run_at = crawler_run.finished_at
+    await session.flush()
+    await session.refresh(crawler_run)
+    # CRG: Store every manual trigger as a crawler run even when remote fetch is skipped.
+    return crawler_task, crawler_run
 
 
 @router.get("/compare")

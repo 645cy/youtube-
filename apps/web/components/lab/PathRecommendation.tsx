@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import type { OCPPath } from "@/lib/store"
+import { useGSAPReveal } from "@/hooks/useGSAPReveal"
 
 interface PathRecommendationProps {
   paths: OCPPath[]
@@ -52,6 +53,7 @@ export function PathRecommendation({
   onSelectPath,
   className,
 }: PathRecommendationProps) {
+  const listRef = useGSAPReveal<HTMLDivElement>({ y: 20, opacity: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" })
   if (isLoading) {
     return (
       <div className={cn("space-y-4", className)}>
@@ -68,7 +70,7 @@ export function PathRecommendation({
 
   if (paths.length === 0) {
     return (
-      <div className={cn("text-center py-12", className)}>
+      <div className={cn("text-center py-12 font-serif tracking-wide", className)}>
         <Target className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
         <p className="text-muted-foreground">请先填写画像并生成方案</p>
       </div>
@@ -77,110 +79,34 @@ export function PathRecommendation({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* 标题 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
-            2
-          </span>
-          <span>推荐路径</span>
-          <span className="text-muted-foreground/60">
-            (找到 {paths.length} 条匹配路径)
-          </span>
+      <div className="paper-card page-corner p-4 md:p-5 bg-background/80 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground font-serif tracking-wide">
+            <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-serif">2</span>
+            <span>推荐路径</span>
+            <span className="text-muted-foreground/60 font-serif tracking-wide tabular-nums">(找到 {paths.length} 条匹配路径)</span>
+          </div>
+          <Badge variant="outline" className="text-xs font-serif tracking-wider"><BarChart3 className="h-3 w-3 mr-1" />AI 匹配</Badge>
         </div>
-        <Badge variant="outline" className="text-xs">
-          <BarChart3 className="h-3 w-3 mr-1" />
-          AI 匹配
-        </Badge>
       </div>
 
-      {/* 路径卡片列表 */}
-      <div className="grid grid-cols-1 gap-3">
+      <div ref={listRef} className="grid grid-cols-1 gap-3">
         <AnimatePresence>
           {paths.map((path, index) => (
-            <motion.div
-              key={path.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-            >
-              <Card
-                className="group cursor-pointer transition-all hover:shadow-lg hover:ring-1 hover:ring-primary/30"
-                onClick={() => onSelectPath(path.id)}
-              >
+            <motion.div key={path.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+              <Card className="group cursor-pointer transition-all paper-card page-corner paper-hover-lift depth-hover bg-background/80 border" onClick={() => onSelectPath(path.id)}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
-                    {/* 左侧：序号 + 信息 */}
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      {/* 排名序号 */}
-                      <div
-                        className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0",
-                          index < 3
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {index + 1}
-                      </div>
-
+                      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 font-serif tabular-nums", index < 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{index + 1}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold truncate">
-                            {path.name}
-                          </h4>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-[10px] shrink-0",
-                              getMatchColor(path.matchScore)
-                            )}
-                          >
-                            {getMatchLabel(path.matchScore)} {path.matchScore}%
-                          </Badge>
-                        </div>
-
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                          {path.description}
-                        </p>
-
-                        {/* 关键指标 */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <TrendingUp className="h-3 w-3 text-emerald-400" />
-                            {path.estimatedRevenue}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3 text-blue-400" />
-                            {path.timeline}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Zap className="h-3 w-3 text-amber-400" />
-                            {path.steps.length} 个步骤
-                          </span>
-                        </div>
-
-                        {/* 进度条 */}
-                        <div className="mt-2">
-                          <Progress value={path.matchScore} className="h-1.5" />
-                        </div>
-
-                        {/* 工具标签 */}
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {path.tools.slice(0, 4).map((tool) => (
-                            <span
-                              key={tool}
-                              className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
-                            >
-                              {tool}
-                            </span>
-                          ))}
-                        </div>
+                        <div className="flex items-center gap-2 mb-1"><h4 className="font-semibold truncate font-serif tracking-wide">{path.name}</h4><Badge variant="outline" className={cn("text-[10px] shrink-0 font-serif tracking-wider", getMatchColor(path.matchScore))}>{getMatchLabel(path.matchScore)} {path.matchScore}%</Badge></div>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2 tracking-wide leading-relaxed">{path.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-serif tracking-wide tabular-nums"><span className="flex items-center gap-1"><TrendingUp className="h-3 w-3 text-emerald-400" />{path.estimatedRevenue}</span><span className="flex items-center gap-1"><Clock className="h-3 w-3 text-blue-400" />{path.timeline}</span><span className="flex items-center gap-1"><Zap className="h-3 w-3 text-amber-400" />{path.steps.length} 个步骤</span></div>
+                        <div className="mt-2"><Progress value={path.matchScore} className="h-1.5" /></div>
+                        <div className="flex flex-wrap gap-1 mt-2">{path.tools.slice(0, 4).map((tool) => (<span key={tool} className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-serif tracking-wider">{tool}</span>))}</div>
                       </div>
                     </div>
-
-                    {/* 右侧：箭头 */}
                     <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                   </div>
                 </CardContent>
@@ -196,7 +122,7 @@ export function PathRecommendation({
 /** 骨架屏卡片 */
 function CardSkeleton({ className }: { className?: string }) {
   return (
-    <Card className={cn(className)}>
+    <Card className={cn("paper-card page-corner depth-hover", className)}>
       <CardContent className="p-4">
         <div className="flex gap-3">
           <Skeleton className="h-8 w-8 rounded-lg shrink-0" />

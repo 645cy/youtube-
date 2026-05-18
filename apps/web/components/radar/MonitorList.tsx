@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useGSAPReveal } from "@/hooks/useGSAPReveal"
 
 /** 监控频道数据 */
 interface MonitoredChannel {
@@ -67,6 +68,9 @@ export function MonitorList({
   const [adding, setAdding] = useState(false)
   const [triggeringId, setTriggeringId] = useState<string | null>(null)
 
+  const listRef = useGSAPReveal<HTMLDivElement>({ y: 20, opacity: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" })
+  const formRef = useGSAPReveal<HTMLDivElement>({ y: 20, opacity: 0, duration: 0.5, ease: "power3.out" })
+
   const handleAdd = async () => {
     if (!newUrl.trim() || !onAddChannel) return
     setAdding(true)
@@ -83,7 +87,7 @@ export function MonitorList({
     return (
       <div className={cn("space-y-3", className)}>
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
+          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border paper-card depth-hover">
             <Skeleton className="h-10 w-10 rounded-full shrink-0" />
             <div className="space-y-2 flex-1">
               <Skeleton className="h-4 w-1/2" />
@@ -97,25 +101,26 @@ export function MonitorList({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* 头部操作区 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold">监控频道</h3>
-          <Badge variant="outline" className="text-xs">
-            {channels.length}
-          </Badge>
+      <div className="flex items-center justify-between gap-3">
+        <div className="space-y-1">
+          <p className="page-kicker">监控册</p>
+          <h3 className="font-semibold font-serif tracking-wide text-foreground">监控频道</h3>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowAddForm(!showAddForm)}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          添加
-        </Button>
+        <Badge variant="outline" className="text-xs font-serif tracking-wider bg-background/70">
+          {channels.length}
+        </Badge>
       </div>
 
-      {/* 添加频道表单 */}
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setShowAddForm(!showAddForm)}
+        className="btn-ripple font-serif tracking-wider w-full justify-center border-primary/15 bg-background/70"
+      >
+        <Plus className="h-4 w-4 mr-1" />
+        添加频道
+      </Button>
+
       <AnimatePresence>
         {showAddForm && (
           <motion.div
@@ -124,14 +129,14 @@ export function MonitorList({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-3 rounded-lg border bg-accent/30 space-y-3">
+            <div ref={formRef} className="p-4 space-y-3 paper-card depth-hover bg-background/80">
               <div className="flex items-center gap-2">
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <Input
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
                   placeholder="输入 YouTube 频道链接或 @用户名..."
-                  className="h-9 text-sm"
+                  className="h-9 text-sm input-glow font-serif tracking-wide"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
               </div>
@@ -140,6 +145,7 @@ export function MonitorList({
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowAddForm(false)}
+                  className="font-serif tracking-wider"
                 >
                   取消
                 </Button>
@@ -147,6 +153,7 @@ export function MonitorList({
                   size="sm"
                   onClick={handleAdd}
                   disabled={!newUrl.trim() || adding}
+                  className="btn-ripple font-serif tracking-wider"
                 >
                   {adding ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-1" />
@@ -161,18 +168,16 @@ export function MonitorList({
         )}
       </AnimatePresence>
 
-      {/* 新视频提示 */}
       {channels.some((c) => c.newVideoCount > 0) && (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm">
-          <Bell className="h-4 w-4 shrink-0" />
-          <span>
+        <div className="flex items-center gap-2 p-3 paper-card page-corner bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">
+          <Bell className="h-4 w-4 shrink-0 animate-candle-pulse" />
+          <span className="font-serif tracking-wide">
             {channels.reduce((sum, c) => sum + c.newVideoCount, 0)} 个新视频待查看
           </span>
         </div>
       )}
 
-      {/* 频道列表 */}
-      <div className="space-y-2">
+      <div ref={listRef} className="space-y-2">
         <AnimatePresence>
           {channels.map((channel) => (
             <motion.div
@@ -185,18 +190,15 @@ export function MonitorList({
             >
               <Card
                 className={cn(
-                  "cursor-pointer transition-all group",
-                  selectedId === channel.id
-                    ? "ring-1 ring-primary shadow-md"
-                    : "hover:bg-accent/50"
+                  "cursor-pointer transition-all group paper-card page-corner paper-hover-lift depth-hover bg-background/80",
+                  selectedId === channel.id ? "ring-1 ring-primary shadow-md" : ""
                 )}
                 onClick={() => onSelectChannel?.(channel.id)}
               >
-                <CardContent className="p-3">
+                <CardContent className="p-3.5">
                   <div className="flex items-center gap-3">
-                    {/* 头像 */}
                     <div className="relative shrink-0">
-                      <div className="h-10 w-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-full overflow-hidden bg-muted flex items-center justify-center border border-border">
                         {channel.avatarUrl ? (
                           <Image
                             src={channel.avatarUrl}
@@ -204,46 +206,37 @@ export function MonitorList({
                             width={40}
                             height={40}
                             className="object-cover"
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement
+                              target.style.display = "none"
+                            }}
                           />
-                        ) : (
-                          <span className="text-xs font-semibold text-foreground/70">
-                            {(channel.name || "?").trim().charAt(0).toUpperCase()}
-                          </span>
-                        )}
+                        ) : null}
+                        <span className="text-xs font-semibold text-foreground/70 absolute inset-0 flex items-center justify-center pointer-events-none font-serif">
+                          {(channel.name || "?").trim().charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      {/* 新视频红点 */}
                       {channel.newVideoCount > 0 && (
-                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center font-bold">
-                          {channel.newVideoCount > 9
-                            ? "9+"
-                            : channel.newVideoCount}
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center font-bold tabular-nums animate-candle-pulse">
+                          {channel.newVideoCount > 9 ? "9+" : channel.newVideoCount}
                         </span>
                       )}
                     </div>
 
-                    {/* 信息 */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-medium truncate">
+                        <h4 className="text-sm font-medium truncate font-serif tracking-wide text-foreground">
                           {channel.name}
                         </h4>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 tabular-nums tracking-wide">
                           <Users className="h-3 w-3" />
                           {formatCompactNumber(channel.subscriberCount)}
                         </span>
-                        <span
-                          className={cn(
-                            "flex items-center gap-1",
-                            channel.growthRate > 0
-                              ? "text-emerald-400"
-                              : "text-red-400"
-                          )}
-                        >
+                        <span className={cn("flex items-center gap-1 tabular-nums tracking-wide", channel.growthRate > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400") }>
                           <TrendingUp className="h-3 w-3" />
-                          {channel.growthRate > 0 ? "+" : ""}
-                          {channel.growthRate}%
+                          {channel.growthRate > 0 ? "+" : ""}{channel.growthRate}%
                         </span>
                       </div>
                     </div>
@@ -252,7 +245,7 @@ export function MonitorList({
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="h-7 w-7 opacity-100 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity"
+                        className="h-7 w-7 opacity-100 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity btn-ripple"
                         onClick={async (e) => {
                           e.stopPropagation()
                           setTriggeringId(channel.id)
@@ -269,12 +262,11 @@ export function MonitorList({
                       </Button>
                     )}
 
-                    {/* 删除按钮 */}
                     {onRemoveChannel && (
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="h-7 w-7 opacity-100 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity"
+                        className="h-7 w-7 opacity-100 sm:opacity-70 sm:group-hover:opacity-100 transition-opacity btn-ripple"
                         onClick={(e) => {
                           e.stopPropagation()
                           onRemoveChannel(channel.id)
@@ -291,12 +283,11 @@ export function MonitorList({
         </AnimatePresence>
       </div>
 
-      {/* 空状态 */}
       {channels.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-8 text-muted-foreground paper-card page-corner depth-hover bg-background/70">
           <Video className="h-10 w-10 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">暂无监控频道</p>
-          <p className="text-xs mt-1">点击上方按钮添加</p>
+          <p className="text-sm font-serif tracking-wide">暂无监控频道</p>
+          <p className="text-xs mt-1 tracking-wide leading-relaxed">点击上方按钮添加</p>
         </div>
       )}
     </div>

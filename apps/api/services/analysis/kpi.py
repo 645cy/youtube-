@@ -92,13 +92,3 @@ class SchedulerEngine:
         jitter = random.uniform(-interval * 0.1, interval * 0.1)
         next_run = (last_run or now) + timedelta(minutes=interval + jitter)
         return max(next_run, now + timedelta(minutes=5))
-
-    @staticmethod
-    def should_run(
-        next_run_at: datetime | None,
-        current_time: datetime | None = None,
-    ) -> bool:
-        if next_run_at is None:
-            return True
-        now = current_time or datetime.now()
-        return now >= next_run_at

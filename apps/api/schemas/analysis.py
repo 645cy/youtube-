@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 
 class AnalysisRequest(BaseModel):
@@ -12,15 +12,11 @@ class AnalysisRequest(BaseModel):
     target_type: str = Field(..., pattern="^(video|channel|niche)$")
     target_id: str
     analysis_types: list[str] = Field(default=["viral_detection"])
-
-    @field_validator("analysis_types")
-    @classmethod
-    def validate_analysis_types(cls, v: list[str]) -> list[str]:
-        allowed = {"viral_detection", "evergreen", "sentiment", "monetization", "niche_score"}
-        for item in v:
-            if item not in allowed:
-                raise ValueError(f"Invalid analysis_type: {item}. Allowed: {allowed}")
-        return v
+    comments: list[tuple[str, str]] | None = Field(
+        None,
+        # CRG: Keep request contract in schema, not router monkey-patches.
+        description="Comment rows for sentiment analysis as [(comment_id, text), ...].",
+    )
 
 
 class ViralDetectionResult(BaseModel):

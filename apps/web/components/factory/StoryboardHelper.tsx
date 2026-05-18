@@ -94,88 +94,40 @@ export function StoryboardHelper({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* 头部操作 */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm">分镜表</h3>
-          <span className="text-xs text-muted-foreground">
-            {items.length} 个镜头
-          </span>
+      <div className="p-4 md:p-5 border paper-card page-corner bg-background/80 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="space-y-1">
+            <p className="text-[10px] font-serif tracking-[0.2em] uppercase text-muted-foreground/70">章节页 · 分镜记录</p>
+            <h3 className="font-semibold text-sm font-serif tracking-wide">分镜表</h3>
+            <span className="text-xs text-muted-foreground font-serif tracking-wide tabular-nums">{items.length} 个镜头</span>
+          </div>
+          <div className="flex gap-2">
+            {onGenerate && <Button size="sm" variant="outline" onClick={onGenerate} disabled={isGenerating} className="font-serif tracking-wide">{isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}AI 生成</Button>}
+            <Button size="sm" onClick={addItem} className="font-serif tracking-wide"><Plus className="h-4 w-4 mr-1" />添加镜头</Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          {onGenerate && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onGenerate}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-1" />
-              )}
-              AI 生成
-            </Button>
-          )}
-          <Button size="sm" onClick={addItem}>
-            <Plus className="h-4 w-4 mr-1" />
-            添加镜头
-          </Button>
-        </div>
+
+        {items.length > 0 && (
+          <div className="hidden sm:grid grid-cols-12 gap-2 px-3 text-xs font-semibold text-muted-foreground uppercase font-serif tracking-wider">
+            <div className="col-span-2 flex items-center gap-1 font-serif tracking-wide"><Clock className="h-3 w-3" />时间码</div>
+            <div className="col-span-3 flex items-center gap-1 font-serif tracking-wide"><Image className="h-3 w-3" />画面</div>
+            <div className="col-span-3 flex items-center gap-1 font-serif tracking-wide"><Video className="h-3 w-3" />镜头</div>
+            <div className="col-span-2 flex items-center gap-1 font-serif tracking-wide"><Film className="h-3 w-3" />素材来源</div>
+            <div className="col-span-2" />
+          </div>
+        )}
       </div>
 
-      {/* 表格头部 */}
-      {items.length > 0 && (
-        <div className="hidden sm:grid grid-cols-12 gap-2 px-3 text-xs font-semibold text-muted-foreground uppercase">
-          <div className="col-span-2 flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            时间码
-          </div>
-          <div className="col-span-3 flex items-center gap-1">
-            <Image className="h-3 w-3" />
-            画面
-          </div>
-          <div className="col-span-3 flex items-center gap-1">
-            <Video className="h-3 w-3" />
-            镜头
-          </div>
-          <div className="col-span-2 flex items-center gap-1">
-            <Film className="h-3 w-3" />
-            素材来源
-          </div>
-          <div className="col-span-2" />
-        </div>
-      )}
-
-      {/* 分镜列表 */}
       <div className="space-y-2">
         {items.map((item, index) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.03 }}
-          >
-            <StoryboardRow
-              item={item}
-              index={index}
-              isEditing={editingId === item.id}
-              onEdit={() => setEditingId(editingId === item.id ? null : item.id)}
-              onUpdate={(updates) => updateItem(item.id, updates)}
-              onRemove={() => removeItem(item.id)}
-            />
+          <motion.div key={item.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}>
+            <StoryboardRow item={item} index={index} isEditing={editingId === item.id} onEdit={() => setEditingId(editingId === item.id ? null : item.id)} onUpdate={(updates) => updateItem(item.id, updates)} onRemove={() => removeItem(item.id)} />
           </motion.div>
         ))}
       </div>
 
-      {/* 空状态 */}
       {items.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-          <Film className="h-10 w-10 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">暂无分镜数据</p>
-          <p className="text-xs mt-1">点击"添加镜头"开始编写分镜表</p>
-        </div>
+        <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed font-serif tracking-wide paper-card page-corner bg-muted/15"><Film className="h-10 w-10 mx-auto mb-2 opacity-50" /><p className="text-sm">暂无分镜数据</p><p className="text-xs mt-1">点击"添加镜头"开始编写分镜表</p></div>
       )}
     </div>
   )
@@ -201,24 +153,25 @@ function StoryboardRow({
 
   if (isEditing) {
     return (
-      <Card className="border-primary/30 ring-1 ring-primary/20">
+      <Card className="border-primary/30 ring-1 ring-primary/20 paper-card page-corner">
         <CardContent className="p-3 space-y-3">
-          <div className="text-xs font-medium text-muted-foreground mb-2">
+          <div className="text-xs font-medium text-muted-foreground mb-2 font-serif tracking-wide">
             镜头 #{index + 1}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">
+              <label className="text-xs text-muted-foreground mb-1 block font-serif tracking-wide">
                 时间码
               </label>
               <Input
                 value={item.timestamp}
+                maxLength={20}
                 onChange={(e) => onUpdate({ timestamp: e.target.value })}
                 placeholder="00:00-00:05"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">
+              <label className="text-xs text-muted-foreground mb-1 block font-serif tracking-wide">
                 类型
               </label>
               <select
@@ -227,7 +180,7 @@ function StoryboardRow({
                   const val = e.target.value as NonNullable<StoryboardItem["type"]>
                   onUpdate({ type: val, source: val })
                 }}
-                className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+                className="w-full h-9 rounded-md border bg-background px-2 text-sm input-glow font-serif tracking-wide"
               >
                 <option value="实拍">实拍</option>
                 <option value="屏幕录制">屏幕录制</option>
@@ -238,37 +191,40 @@ function StoryboardRow({
             </div>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">
+            <label className="text-xs text-muted-foreground mb-1 block font-serif tracking-wide">
               画面描述
             </label>
             <Input
               value={item.scene}
+              maxLength={200}
               onChange={(e) => onUpdate({ scene: e.target.value })}
               placeholder="描述画面内容..."
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">
+            <label className="text-xs text-muted-foreground mb-1 block font-serif tracking-wide">
               镜头描述
             </label>
             <Input
               value={item.shot}
+              maxLength={200}
               onChange={(e) => onUpdate({ shot: e.target.value })}
               placeholder="景别、角度、运动..."
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">
+            <label className="text-xs text-muted-foreground mb-1 block font-serif tracking-wide">
               素材来源
             </label>
             <Input
               value={item.source}
+              maxLength={200}
               onChange={(e) => onUpdate({ source: e.target.value })}
               placeholder="具体素材来源..."
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onClick={onEdit}>
+            <Button size="sm" variant="ghost" onClick={onEdit} className="font-serif tracking-wide">
               完成
             </Button>
             <Button size="sm" variant="ghost" onClick={onRemove}>
@@ -282,23 +238,23 @@ function StoryboardRow({
 
   return (
     <Card
-      className="cursor-pointer hover:bg-accent/30 transition-colors group"
+      className="cursor-pointer hover:bg-accent/30 transition-colors group paper-card page-corner paper-hover-lift"
       onClick={onEdit}
     >
       <CardContent className="p-3">
         {/* 桌面布局 */}
         <div className="hidden sm:grid grid-cols-12 gap-2 items-center">
           <div className="col-span-2">
-            <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
+            <code className="text-xs font-mono bg-muted px-2 py-1 rounded font-serif tracking-wide tabular-nums">
               {item.timestamp}
             </code>
           </div>
-          <div className="col-span-3 text-sm truncate">{item.scene || "-"}</div>
-          <div className="col-span-3 text-sm text-muted-foreground truncate">
+          <div className="col-span-3 text-sm truncate font-serif tracking-wide">{item.scene || "-"}</div>
+          <div className="col-span-3 text-sm text-muted-foreground truncate font-serif tracking-wide">
             {item.shot || "-"}
           </div>
           <div className="col-span-2">
-            <Badge variant="outline" className={cn("text-[10px]", sourceColor)}>
+            <Badge variant="outline" className={cn("text-[10px] font-serif tracking-wider", sourceColor)}>
               {item.source}
             </Badge>
           </div>
@@ -320,12 +276,12 @@ function StoryboardRow({
         {/* 移动端布局 */}
         <div className="sm:hidden space-y-2">
           <div className="flex items-center justify-between">
-            <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
+            <code className="text-xs font-mono bg-muted px-2 py-1 rounded font-serif tracking-wide tabular-nums">
               {item.timestamp}
             </code>
             <Badge
               variant="outline"
-              className={cn("text-[10px]", sourceColor)}
+              className={cn("text-[10px] font-serif tracking-wider", sourceColor)}
             >
               {item.source}
             </Badge>

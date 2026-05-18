@@ -39,7 +39,7 @@ interface RadarGrowthChartProps {
 }
 
 /**
- * 自定义 Tooltip
+ * 自定义 Tooltip - 精致化
  */
 function CustomTooltip({
   active,
@@ -53,16 +53,16 @@ function CustomTooltip({
   if (!active || !payload?.length) return null
 
   return (
-    <div className="rounded-xl border bg-background/95 backdrop-blur-sm p-3 shadow-xl">
-      <p className="text-xs text-muted-foreground mb-2">{label}</p>
+    <div className="rounded-xl border bg-background/95 backdrop-blur-sm p-3 shadow-xl paper-card page-corner">
+      <p className="text-xs text-muted-foreground mb-2 tracking-wide font-serif">{label}</p>
       {payload.map((entry) => (
-        <div key={entry.name} className="flex items-center gap-2 text-sm py-0.5">
+        <div key={entry.name} className="flex items-center gap-2 text-sm py-0.5 tracking-wide">
           <span
             className="h-2.5 w-2.5 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
           <span className="text-muted-foreground">{entry.name}:</span>
-          <span className="font-medium">{formatCompactNumber(entry.value)}</span>
+          <span className="font-medium tabular-nums">{formatCompactNumber(entry.value)}</span>
         </div>
       ))}
     </div>
@@ -78,12 +78,23 @@ export function RadarGrowthChart({
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
-  const axisColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"
-  const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"
+  const axisColor = isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)"
+  const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"
+
+  // 暗色模式使用暖色调（金色/琥珀色系），明亮模式使用原色调
+  const lineColors = isDark
+    ? [
+        "hsl(38, 50%, 55%)",
+        "hsl(30, 45%, 50%)",
+        "hsl(45, 40%, 48%)",
+        "hsl(25, 42%, 52%)",
+        "hsl(50, 35%, 50%)",
+      ]
+    : series.map((s) => s.color)
 
   if (loading) {
     return (
-      <Card className={cn(className)}>
+      <Card className={cn("paper-card page-corner", className)}>
         <CardHeader>
           <Skeleton className="h-5 w-32" />
         </CardHeader>
@@ -95,20 +106,21 @@ export function RadarGrowthChart({
   }
 
   return (
-    <Card className={cn(className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
+    <Card className={cn("paper-card page-corner bg-background/80", className)}>
+      <CardHeader className="pb-2 border-b border-border/40">
+        <CardTitle className="text-base flex items-center gap-2 font-serif tracking-wide">
           <TrendingUp className="h-4 w-4 text-primary" />
           增长曲线
-          <span className="text-xs font-normal text-muted-foreground ml-2">
+          <span className="text-xs font-normal text-muted-foreground ml-2 tracking-wide">
             (订阅数趋势)
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-5">
         {data.length === 0 ? (
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
-            请选择频道查看增长趋势
+          <div className="h-[300px] flex flex-col items-center justify-center text-muted-foreground">
+            <TrendingUp className="h-10 w-10 mb-3 opacity-30" />
+            <p className="text-sm font-serif tracking-wide">请选择频道查看增长趋势</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
@@ -124,7 +136,7 @@ export function RadarGrowthChart({
               <XAxis
                 dataKey="date"
                 stroke={axisColor}
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value: string) => {
@@ -134,7 +146,7 @@ export function RadarGrowthChart({
               />
               <YAxis
                 stroke={axisColor}
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: number) => formatCompactNumber(v)}
@@ -142,14 +154,14 @@ export function RadarGrowthChart({
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
 
-              {series.map((s) => (
+              {series.map((s, i) => (
                 <Line
                   key={s.key}
                   type="monotone"
                   dataKey={s.key}
                   name={s.name}
-                  stroke={s.color}
-                  strokeWidth={2}
+                  stroke={isDark ? lineColors[i % lineColors.length] : s.color}
+                  strokeWidth={2.2}
                   dot={false}
                   activeDot={{ r: 4, strokeWidth: 2 }}
                 />

@@ -77,10 +77,6 @@ class NicheScoringCard:
             opportunity_level=opportunity, swot_summary=swot, recommendation=recs[opportunity],
         )
 
-    def compare(self, niches: list[NicheMetrics]) -> list[NicheScoringResult]:
-        results = [self.score(n) for n in niches]
-        return sorted(results, key=lambda x: x.total_score, reverse=True)
-
     def _swot(self, tp: float, md: float, ar: float, rc: float, m: NicheMetrics) -> dict[str, list[str]]:
         s, w, o, t = [], [], [], []
         if tp > 70:

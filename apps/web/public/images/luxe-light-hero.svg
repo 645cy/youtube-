@@ -1,0 +1,32 @@
+<!-- CRG: Local luxury-light asset removes external image dependency for the redesigned shell. -->
+<svg width="1800" height="1200" viewBox="0 0 1800 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1800" height="1200" fill="#F7F5EF"/>
+  <radialGradient id="gold" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1360 130) rotate(132) scale(760 420)">
+    <stop stop-color="#D9B66C" stop-opacity="0.38"/>
+    <stop offset="0.48" stop-color="#EAD9B1" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#F7F5EF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="blue" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(260 870) rotate(-28) scale(720 380)">
+    <stop stop-color="#6A8FB8" stop-opacity="0.2"/>
+    <stop offset="1" stop-color="#F7F5EF" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1800" height="1200" fill="url(#gold)"/>
+  <rect width="1800" height="1200" fill="url(#blue)"/>
+  <g opacity="0.52">
+    <path d="M1140 0L1800 610V1200H1380L810 690C700 592 694 423 796 318L1140 0Z" fill="#FFFFFF" fill-opacity="0.48"/>
+    <path d="M1196 73L1718 554V1066H1400L894 612C806 533 800 399 881 314L1196 73Z" stroke="#C9A765" stroke-opacity="0.32" stroke-width="2"/>
+  </g>
+  <g stroke="#B99B60" stroke-opacity="0.16" stroke-width="1">
+    <path d="M126 190C390 252 526 128 760 188C1012 252 1105 418 1374 352C1518 317 1616 236 1706 116"/>
+    <path d="M68 438C356 508 540 424 748 482C1022 558 1166 736 1458 660C1606 622 1692 538 1774 448"/>
+    <path d="M142 846C384 780 548 852 756 806C1038 744 1170 548 1460 594C1602 616 1702 690 1780 792"/>
+  </g>
+  <g opacity="0.34">
+    <circle cx="1160" cy="310" r="3" fill="#B99B60"/>
+    <circle cx="1248" cy="412" r="3" fill="#7B91A8"/>
+    <circle cx="1380" cy="344" r="4" fill="#B99B60"/>
+    <circle cx="1512" cy="484" r="3" fill="#7B91A8"/>
+    <circle cx="1342" cy="620" r="3" fill="#B99B60"/>
+  </g>
+  <rect x="1" y="1" width="1798" height="1198" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+</svg>

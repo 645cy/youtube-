@@ -1,37 +1,21 @@
-/**
- * Badge 组件 - shadcn/ui
- * 标签/徽标组件，支持多种颜色变体
- */
-
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors",
+  // CRG: Badges use label typography so status chips feel deliberate rather than default small text.
+  "lux-badge-type inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-[11px] leading-none transition-colors",
   {
     variants: {
       variant: {
-        // 默认 - 次级背景
-        default:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        // 主色
-        primary:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/90",
-        // 描边样式
-        outline: "text-foreground",
-        // 成功状态
-        success:
-          "border-transparent bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30",
-        // 警告状态
-        warning:
-          "border-transparent bg-amber-500/20 text-amber-400 hover:bg-amber-500/30",
-        // 危险状态
-        danger:
-          "border-transparent bg-red-500/20 text-red-400 hover:bg-red-500/30",
-        // 信息状态
-        info:
-          "border-transparent bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
+        // CRG: Status variants keep API compatibility while improving contrast in both themes.
+        default: "border-border/70 bg-secondary/80 text-secondary-foreground",
+        primary: "border-primary/24 bg-primary/12 text-primary",
+        outline: "border-border/80 bg-transparent text-foreground",
+        success: "border-emerald-500/24 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
+        warning: "border-amber-500/28 bg-amber-500/12 text-amber-700 dark:text-amber-300",
+        danger: "border-red-500/24 bg-red-500/10 text-red-600 dark:text-red-300",
+        info: "border-sky-500/24 bg-sky-500/10 text-sky-700 dark:text-sky-300",
       },
     },
     defaultVariants: {
@@ -40,14 +24,10 @@ const badgeVariants = cva(
   }
 )
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
+  return <div className={cn(badgeVariants({ variant }), className)} {...props} />
 }
 
 export { Badge, badgeVariants }

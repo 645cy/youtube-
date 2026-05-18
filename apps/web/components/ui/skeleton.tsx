@@ -1,114 +1,79 @@
-/**
- * Skeleton 骨架屏组件 - shadcn/ui
- * 用于加载状态占位，比 Spinner 更好的用户体验
- */
+"use client"
 
 import { cn } from "@/lib/utils"
 
-/**
- * Skeleton 组件
- * 使用 animate-pulse 实现呼吸动画
- * 通过类名控制尺寸（w-full h-16）
- */
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn(
+        "relative overflow-hidden rounded-xl bg-muted/70 before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/24 before:to-transparent dark:before:via-white/8",
+        className
+      )}
       {...props}
     />
   )
 }
 
-/**
- * 卡片骨架屏 - 组合组件
- */
-function CardSkeleton({ className }: { className?: string }) {
+function CardSkeleton({ className }: { className?: string; delay?: number }) {
   return (
-    <div className={cn("rounded-xl border bg-card p-4 space-y-3", className)}>
+    <div className={cn("lux-card space-y-3 p-5", className)}>
       <Skeleton className="h-5 w-1/3" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-2/3" />
       <div className="flex gap-2">
-        <Skeleton className="h-3 w-16" />
-        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-6 w-16 rounded-full" />
+        <Skeleton className="h-6 w-20 rounded-full" />
       </div>
     </div>
   )
 }
 
-/**
- * 统计卡片骨架屏
- */
-function StatSkeleton({ className }: { className?: string }) {
+function StatSkeleton({ className }: { className?: string; delay?: number }) {
   return (
-    <div className={cn("rounded-xl border bg-card p-6 space-y-3", className)}>
+    <div className={cn("lux-card space-y-4 p-5", className)}>
       <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-8 w-8 rounded-lg" />
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-9 w-9" />
       </div>
-      <Skeleton className="h-8 w-24" />
-      <Skeleton className="h-3 w-16" />
+      <Skeleton className="h-9 w-28" />
+      <Skeleton className="h-4 w-20" />
     </div>
   )
 }
 
-/**
- * 图表骨架屏
- */
-function ChartSkeleton({ className }: { className?: string }) {
+function ChartSkeleton({ className }: { className?: string; delay?: number }) {
+  const heights = [48, 72, 42, 86, 58, 66, 50, 90, 44, 70, 60, 78]
   return (
-    <div className={cn("rounded-xl border bg-card p-6 space-y-4", className)}>
-      <Skeleton className="h-5 w-32" />
-      <div className="flex items-end gap-2 h-[250px]">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className="flex-1"
-            style={{ height: `${Math.random() * 60 + 20}%` }}
-          />
+    <div className={cn("lux-card space-y-4 p-5", className)}>
+      <Skeleton className="h-5 w-36" />
+      <div className="flex h-[240px] items-end gap-2">
+        {heights.map((height, index) => (
+          <Skeleton key={index} className="flex-1" style={{ height: `${height}%` }} />
         ))}
       </div>
     </div>
   )
 }
 
-/**
- * 侧边栏骨架屏
- */
 function SidebarSkeleton() {
   return (
-    <div className="w-64 space-y-4 p-4">
-      <Skeleton className="h-8 w-3/4" />
-      <div className="space-y-2 pt-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/**
- * 表格行骨架屏
- */
-function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
-  return (
-    <div className="flex gap-4 py-3">
-      {Array.from({ length: columns }).map((_, i) => (
-        <Skeleton key={i} className={`h-4 flex-1`} style={{ maxWidth: `${20 + Math.random() * 30}%` }} />
+    <div className="w-64 space-y-3 p-4">
+      <Skeleton className="h-11 w-44" />
+      {Array.from({ length: 7 }).map((_, index) => (
+        <Skeleton key={index} className="h-12 w-full" />
       ))}
     </div>
   )
 }
 
-export {
-  Skeleton,
-  CardSkeleton,
-  StatSkeleton,
-  ChartSkeleton,
-  SidebarSkeleton,
-  TableRowSkeleton,
+function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
+  return (
+    <div className="flex gap-4 py-3">
+      {Array.from({ length: columns }).map((_, index) => (
+        <Skeleton key={index} className="h-4 flex-1" />
+      ))}
+    </div>
+  )
 }
+
+export { Skeleton, CardSkeleton, StatSkeleton, ChartSkeleton, SidebarSkeleton, TableRowSkeleton }

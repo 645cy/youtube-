@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -97,6 +98,19 @@ class TestQuotaManager:
         report = await manager.get_usage_report()
         assert report["units_consumed"] == 15
         assert report["endpoints"]["custom_endpoint"] == 15
+
+    @pytest.mark.anyio
+    async def test_state_persists_across_manager_instances(self, tmp_path: Path) -> None:
+        state_path = tmp_path / "quota_state.json"
+        manager = QuotaManager(daily_quota=1000, state_path=str(state_path))
+        await manager.record(EndpointCost.SEARCH_LIST)
+
+        # CRG: Quota usage must survive service restarts instead of resetting in memory.
+        restored = QuotaManager(daily_quota=1000, state_path=str(state_path))
+        report = await restored.get_usage_report()
+        assert report["units_consumed"] == 100
+        assert report["units_remaining"] == 900
+        assert report["endpoints"]["SEARCH_LIST"] == 100
 
 
 class TestVideoMetadata:

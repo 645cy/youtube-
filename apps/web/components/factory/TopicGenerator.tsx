@@ -61,86 +61,53 @@ export function TopicGenerator({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* 输入区域 */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={niche}
-            onChange={(e) => setNiche(e.target.value)}
-            placeholder="输入你的 niche（如：iPhone技巧、健身教程...）"
-            className="pl-10 h-11"
-            onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-          />
+      <div className="p-4 md:p-5 border paper-card page-corner bg-background/80 space-y-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="space-y-1">
+            <p className="text-[10px] font-serif tracking-[0.2em] uppercase text-muted-foreground/70">目录页 · 选题索引</p>
+            <h3 className="font-serif text-base text-foreground tracking-wide">输入 niche，生成可拍摄的内容方向</h3>
+          </div>
+          <span className="text-[10px] font-serif tracking-wider text-muted-foreground">AI · 搜索量 · 竞争度 · 评分</span>
         </div>
-        <Button
-          onClick={handleGenerate}
-          disabled={!niche.trim() || isLoading}
-          className="h-11 px-6"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          ) : (
-            <Sparkles className="h-4 w-4 mr-2" />
-          )}
-          {isLoading ? "生成中..." : "AI 选题"}
-        </Button>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="输入你的 niche（如：iPhone技巧、健身教程...）" className="pl-10 h-11 input-glow font-serif tracking-wide" onKeyDown={(e) => e.key === "Enter" && handleGenerate()} />
+          </div>
+          <Button onClick={handleGenerate} disabled={!niche.trim() || isLoading} className="h-11 px-6 font-serif tracking-wide">{isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}{isLoading ? "生成中..." : "AI 选题"}</Button>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-muted-foreground font-serif tracking-wide">热门:</span>
+          {[
+            "科技数码",
+            "美食烹饪",
+            "健身运动",
+            "旅行Vlog",
+            "知识科普",
+            "游戏电竞",
+            "财经投资",
+          ].map((tag) => (
+            <Badge key={tag} variant="outline" className="cursor-pointer text-xs hover:bg-accent transition-colors font-serif tracking-wider" onClick={(e) => { e.stopPropagation(); setNiche(tag); onGenerate(tag) }}>{tag}</Badge>
+          ))}
+        </div>
       </div>
 
-      {/* 热门 niche 快速选择 */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-muted-foreground">热门:</span>
-        {[
-          "科技数码",
-          "美食烹饪",
-          "健身运动",
-          "旅行Vlog",
-          "知识科普",
-          "游戏电竞",
-          "财经投资",
-        ].map((tag) => (
-          <Badge
-            key={tag}
-            variant="outline"
-            className="cursor-pointer text-xs hover:bg-accent transition-colors"
-            onClick={() => {
-              setNiche(tag)
-              onGenerate(tag)
-            }}
-          >
-            {tag}
-          </Badge>
-        ))}
-      </div>
-
-      {/* 选题结果 */}
       <div className="grid grid-cols-1 gap-3">
         <AnimatePresence>
           {isLoading
-            ? Array.from({ length: 5 }).map((_, i) => (
-                <TopicSkeleton key={i} />
-              ))
+            ? Array.from({ length: 5 }).map((_, i) => <TopicSkeleton key={i} />)
             : topics.map((topic, index) => (
-                <motion.div
-                  key={topic.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <TopicCard
-                    topic={topic}
-                    selected={selectedTopicId === topic.id}
-                    onSelect={() => onSelectTopic?.(topic)}
-                  />
+                <motion.div key={topic.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ delay: index * 0.05 }}>
+                  <TopicCard topic={topic} selected={selectedTopicId === topic.id} onSelect={() => onSelectTopic?.(topic)} />
                 </motion.div>
               ))}
         </AnimatePresence>
       </div>
 
-      {/* 空状态 */}
       {!isLoading && topics.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-center py-12 text-muted-foreground font-serif tracking-wide paper-card page-corner border bg-muted/15">
           <Lightbulb className="h-12 w-12 mx-auto mb-3 opacity-50" />
           <p className="text-sm">输入 niche 开始 AI 选题</p>
           <p className="text-xs mt-1">我们将为你生成高潜力的视频选题建议</p>
@@ -163,7 +130,7 @@ function TopicCard({
   return (
     <Card
       className={cn(
-        "group hover:shadow-md transition-all cursor-pointer",
+        "group hover:shadow-md transition-all cursor-pointer paper-card page-corner paper-hover-lift depth-hover",
         selected && "ring-1 ring-primary bg-primary/5"
       )}
       onClick={onSelect}
@@ -172,12 +139,12 @@ function TopicCard({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-medium text-sm">{topic.title}</h4>
+              <h4 className="font-medium text-sm font-serif tracking-wide">{topic.title}</h4>
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2 tracking-wide leading-relaxed">
               {topic.description}
             </p>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground font-serif tracking-wide tabular-nums">
               <span className="flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
                 搜索量: {topic.searchVolume}
@@ -192,7 +159,7 @@ function TopicCard({
                 {topic.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                    className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-serif tracking-wider"
                   >
                     {tag}
                   </span>
@@ -204,7 +171,7 @@ function TopicCard({
           <div className="flex flex-col items-center shrink-0">
             <div
               className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold",
+                "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold font-serif tabular-nums",
                 topic.score >= 80
                   ? "bg-emerald-500/20 text-emerald-400"
                   : topic.score >= 60
@@ -214,7 +181,7 @@ function TopicCard({
             >
               {topic.score}
             </div>
-            <span className="text-[10px] text-muted-foreground mt-1 flex items-center gap-0.5">
+            <span className="text-[10px] text-muted-foreground mt-1 flex items-center gap-0.5 font-serif tracking-wide">
               <Star className="h-2.5 w-2.5" />
               评分
             </span>
@@ -228,7 +195,7 @@ function TopicCard({
 /** 骨架屏 */
 function TopicSkeleton() {
   return (
-    <Card>
+    <Card className="paper-card page-corner depth-hover">
       <CardContent className="p-4">
         <div className="flex gap-3">
           <div className="space-y-2 flex-1">

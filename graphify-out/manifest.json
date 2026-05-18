@@ -1,0 +1,526 @@
+{
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\analyze-codebase.ps1": {
+    "mtime": 1778067284.5864153,
+    "hash": "65cdc4b0e79f88ac2a98795f0efbe1c0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\architecture_scan.py": {
+    "mtime": 1777823187.9785924,
+    "hash": "ff77edc25fb7ec5d232f5ded08c41d3e"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\check_ai_features.py": {
+    "mtime": 1777984316.6725757,
+    "hash": "ae545b88e7b4705af99802e31d34dd3a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\check_features.py": {
+    "mtime": 1777984316.6775782,
+    "hash": "701366c1b025c67d0fe25c8924e086fe"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\check_frontend.py": {
+    "mtime": 1777984316.6775782,
+    "hash": "97d0b378e7ba2ea53f7ffb56be421f93"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\start-dev.ps1": {
+    "mtime": 1777793064.9711318,
+    "hash": "80fd3ff69506ac2c817bd5bc3cf19647"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\config.py": {
+    "mtime": 1778082868.511487,
+    "hash": "78fe58b9fe611a9a7ac5ae452bee3df3"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\main.py": {
+    "mtime": 1778067802.381911,
+    "hash": "5ccd902e6e7aaea4603dd4b5c8f30191"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\analysis.py": {
+    "mtime": 1778068017.9720335,
+    "hash": "55b836e824db44f45ad00dc1a0a3c9a1"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\channels.py": {
+    "mtime": 1778067760.8331053,
+    "hash": "84a2deb07ce5cae34731f250604154c3"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\content_factory.py": {
+    "mtime": 1777861737.5738816,
+    "hash": "06c7d754ce657be798662cc5ababe9dc"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\crawler.py": {
+    "mtime": 1778082831.473239,
+    "hash": "328ab9bbf5a6dbaca76c49bd977c7b27"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\lab.py": {
+    "mtime": 1777734304.6946497,
+    "hash": "83f3d68e8763d4780aeb055c685f410e"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\radar.py": {
+    "mtime": 1777860571.704543,
+    "hash": "490eb5c8e5262478f4553bb422dfb467"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\routers\\videos.py": {
+    "mtime": 1778074506.278294,
+    "hash": "957e82194d77402b359e0168677be1f2"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\analysis.py": {
+    "mtime": 1777822749.0666394,
+    "hash": "8a4fe6a21bf0056a0c19b8de5f976215"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\channel.py": {
+    "mtime": 1777724558.290764,
+    "hash": "3a33fa8b95db649d2aa5d29a253604af"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\common.py": {
+    "mtime": 1777724687.973923,
+    "hash": "9ffb32f16a6ee634ccfe7f1cdc7aff76"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\crawler.py": {
+    "mtime": 1777733640.7277925,
+    "hash": "ed3c613ef6c469a63ffee825f48cd731"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\lab.py": {
+    "mtime": 1777724673.9110026,
+    "hash": "302d01e8e08f62873470a856470cbffc"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\metric.py": {
+    "mtime": 1777724656.5034006,
+    "hash": "c97262d59f3c50d6de29289b6077420c"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\monitor.py": {
+    "mtime": 1777724599.9744787,
+    "hash": "238ab42ff26cc6b3f30152b4dab9c32d"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\video.py": {
+    "mtime": 1777724581.3568912,
+    "hash": "2eaac983ba05c76f72e65b7b360f2e33"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\schemas\\__init__.py": {
+    "mtime": 1777724705.6754794,
+    "hash": "57278cdf27de793c32e00c46ad24bc55"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\seed\\demo_cleanup.py": {
+    "mtime": 1777821215.059091,
+    "hash": "55d1f2501ca5a360f8d4122dfc024c7b"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\seed\\import_trending.py": {
+    "mtime": 1777984316.6795757,
+    "hash": "fd5c7c04e987b54a8f8af9a8802e426a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\seed\\seed_db.py": {
+    "mtime": 1777734246.6753945,
+    "hash": "bd0a06f1c9215043b3691c7ac35dd175"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis_helpers.py": {
+    "mtime": 1778067869.6063423,
+    "hash": "f1673bbef46e5a3ed0869c17c9d08dcf"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analyzer.py": {
+    "mtime": 1777726026.7314408,
+    "hash": "c8ff9e390fa827083766feb2217161ad"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\channel_service.py": {
+    "mtime": 1778067672.4493508,
+    "hash": "07acddf6d5afdc5659ac23d55c01f659"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\crawler_executor.py": {
+    "mtime": 1778125084.4661129,
+    "hash": "d36e8cfb5c3fbda3b60d57ea5fa0a1b6"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\recommender.py": {
+    "mtime": 1777823344.2542078,
+    "hash": "f8ee310b8bb3b430ec48b3edf4256af2"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\scheduler.py": {
+    "mtime": 1778082851.9853623,
+    "hash": "e4234c91fb7680fef54bf95313a88d76"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\video_service.py": {
+    "mtime": 1778074465.804202,
+    "hash": "3365921e17582ff0a973c3dde4e5cc34"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\youtube_api.py": {
+    "mtime": 1778083394.6694245,
+    "hash": "8f586a1e75feecf278d4c9725431b207"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\common.py": {
+    "mtime": 1777734189.6329181,
+    "hash": "dafc0a31ba57922feff1494a32ea7f8c"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\evergreen.py": {
+    "mtime": 1777734054.7957299,
+    "hash": "bd725f847d1ac83e4d420b3e1dca9198"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\format.py": {
+    "mtime": 1777725996.355862,
+    "hash": "6c706a40615af1e8c3b5f87e11ef9777"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\kpi.py": {
+    "mtime": 1777861660.0452797,
+    "hash": "1de249ed71878b5d119a6ffd91f4a096"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\monetization.py": {
+    "mtime": 1777823024.4068875,
+    "hash": "6addfa797cb953631de3f5bf5588e56a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\niche.py": {
+    "mtime": 1777822769.2951765,
+    "hash": "4090c23fda3c3f4e4b7449947361abe6"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\sentiment.py": {
+    "mtime": 1778074600.583164,
+    "hash": "90274f4c6e2a96111c4d4c4b85e16114"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\sentiment_tokenizer.py": {
+    "mtime": 1778075291.877071,
+    "hash": "4b80aa3bc284c8f47d023678cf84e8be"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\viral.py": {
+    "mtime": 1777734096.0248704,
+    "hash": "4afaf6f79cde6b25fc90b9dd55693147"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\api\\services\\analysis\\__init__.py": {
+    "mtime": 1777726023.323876,
+    "hash": "581068049f8decb662bd60f77da21594"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\next-env.d.ts": {
+    "mtime": 1777389338.0228002,
+    "hash": "187b4b5b507c358a018aeeadd81abe57"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\next.config.js": {
+    "mtime": 1777984316.6735754,
+    "hash": "f4ece76183fd5b5846da609fa8d688f3"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\postcss.config.js": {
+    "mtime": 1777388745.92997,
+    "hash": "79aa70c635626ba34b1b769c9a6b06e9"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\tailwind.config.ts": {
+    "mtime": 1778125288.8137698,
+    "hash": "28567cc1303eda751655c1c9abb72fb7"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\ClientLayout.tsx": {
+    "mtime": 1778125224.4203534,
+    "hash": "468f115eab43fbbb9bdb9e2821514a99"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\error.tsx": {
+    "mtime": 1777871358.1562822,
+    "hash": "d3f23c5a74a69c52139ffa1d9ade1626"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\layout.tsx": {
+    "mtime": 1778076914.2039177,
+    "hash": "45ef7c58924c15b85984dead3f0a6822"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\loading.tsx": {
+    "mtime": 1777388745.95967,
+    "hash": "2fd07dfd0ba30827a838456f12aced68"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\page.tsx": {
+    "mtime": 1777718988.2330918,
+    "hash": "c53756edb59e962599b7d8fa05144819"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\crawler\\page.tsx": {
+    "mtime": 1777697020.6933594,
+    "hash": "abdbe443723e86423ab33c41c7381bc0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\dashboard\\page.tsx": {
+    "mtime": 1778126233.9650757,
+    "hash": "790cc392082105b82e1bd618fe1af028"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\factory\\page.tsx": {
+    "mtime": 1777817896.223061,
+    "hash": "f0658128fea1f7a4bc5598fc7fcba49f"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\lab\\page.tsx": {
+    "mtime": 1777540810.480457,
+    "hash": "ecbeb6936e923d07f78bb8db11826e73"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\radar\\page.tsx": {
+    "mtime": 1777984316.6705773,
+    "hash": "3e8929accfcafae13a547c246324df81"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\settings\\integrations\\page.tsx": {
+    "mtime": 1777821847.3839047,
+    "hash": "e090880d5e97808dc00cb97fad874d49"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\app\\workspace\\page.tsx": {
+    "mtime": 1778077228.2124267,
+    "hash": "bc084418a60b7909a45e85eddbeaeec7"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\BackgroundLayer.tsx": {
+    "mtime": 1777711780.8119094,
+    "hash": "91ee220060ae449688906966e8965fd0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\PageHeader.tsx": {
+    "mtime": 1778077560.755464,
+    "hash": "781081bd73ca3f68d09075d89ca899c0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\analysis\\VideoAnalysisPanel.tsx": {
+    "mtime": 1777815612.11869,
+    "hash": "9c3bc19856289928609a31b3f0eb4b24"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\dashboard\\ChannelCard.tsx": {
+    "mtime": 1777651140.114271,
+    "hash": "6d32daf60eaa765e9b2a171eeda8db89"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\dashboard\\GrowthChart.tsx": {
+    "mtime": 1777432706.9955072,
+    "hash": "c3f65a6e6a94ae83e7b1e0403797dfe9"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\dashboard\\KPICards.tsx": {
+    "mtime": 1777432755.086065,
+    "hash": "4971203b108153159b82f681c6b2157e"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\dashboard\\SearchBox.tsx": {
+    "mtime": 1777816056.9442024,
+    "hash": "3f109b611a8576e45bbffc01a237bbd0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\dashboard\\VideoDrawer.tsx": {
+    "mtime": 1777540810.4824612,
+    "hash": "993dd51e532e63bd36eabcd819dbecbb"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\factory\\ScriptEditor.tsx": {
+    "mtime": 1777388745.9566698,
+    "hash": "f063658920f322d79e97d95e185882fb"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\factory\\StoryboardHelper.tsx": {
+    "mtime": 1777433014.8080015,
+    "hash": "bb8f3f9cddaef6eca56e9de076c53c5d"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\factory\\TopicGenerator.tsx": {
+    "mtime": 1777540810.4794574,
+    "hash": "ceeca44059e1a997291843b2f02e286e"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\lab\\PathRecommendation.tsx": {
+    "mtime": 1777433131.8162289,
+    "hash": "937635ccb4d2ac7643c709f7dccb69a8"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\lab\\UserProfileForm.tsx": {
+    "mtime": 1777433179.1798549,
+    "hash": "a8c7b404e677961f2db462134c693d21"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\lab\\WorkflowDetail.tsx": {
+    "mtime": 1777818185.3828683,
+    "hash": "002267725f3013556389c1e10a7354bd"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\radar\\GrowthChart.tsx": {
+    "mtime": 1777388745.9546711,
+    "hash": "ee2fbc65d335f477fa7fc84cb33a7e4f"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\radar\\MonitorList.tsx": {
+    "mtime": 1777984316.6715758,
+    "hash": "19f81b314eb43cd65910616ea5daa8bf"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\transitions\\PageFlipTransition.tsx": {
+    "mtime": 1778125153.8134713,
+    "hash": "663f1153e971462dc0f180229953d0e6"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\badge.tsx": {
+    "mtime": 1778077545.3274572,
+    "hash": "6dca6873e8386d47d6189b757f24afc8"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\button.tsx": {
+    "mtime": 1778077514.4004588,
+    "hash": "bbfd483717f928358554f275494030b8"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\card.tsx": {
+    "mtime": 1778077531.6934583,
+    "hash": "068213cb7efec43e26aee80e0187b1b0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\drawer.tsx": {
+    "mtime": 1777388745.9399712,
+    "hash": "d68e716d466ede5d5557467744726855"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\input.tsx": {
+    "mtime": 1777388745.9389699,
+    "hash": "febc69292b76621fe0c897a941e344c8"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\progress.tsx": {
+    "mtime": 1777388745.9429708,
+    "hash": "95cecb3b5d951d90ba1c5f77959f4c07"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\scroll-area.tsx": {
+    "mtime": 1777388745.9439695,
+    "hash": "32459b019f5079f047356c06128e3119"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\skeleton.tsx": {
+    "mtime": 1777388745.9429708,
+    "hash": "a6b24e81102fda7880182c1d2bfcc988"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\tabs.tsx": {
+    "mtime": 1777388745.94097,
+    "hash": "d9766701dd626ec72ac5ffd5d7c300af"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\components\\ui\\toast.tsx": {
+    "mtime": 1777388745.9419699,
+    "hash": "06baca9ae83a7e878af8e8482df94486"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\api.ts": {
+    "mtime": 1777984316.678577,
+    "hash": "1fae529582a243569d6303d42c1b8caa"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\defaults.ts": {
+    "mtime": 1777697005.2495155,
+    "hash": "819e466eb3c2cf3ba00e3bf001baf9e5"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\mappers.ts": {
+    "mtime": 1777540810.4849637,
+    "hash": "b2e78a0c3c574b5ef667b97adf2c12de"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\store.ts": {
+    "mtime": 1777476786.013728,
+    "hash": "57a9ca660010253154738863d7ca28fc"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\toast.ts": {
+    "mtime": 1777453250.613902,
+    "hash": "29baa755e3e5b350035fbed715f7f24b"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\utils.ts": {
+    "mtime": 1777432811.5988812,
+    "hash": "69da7be3ac09be3130056711a9e8cd42"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\api\\channels.ts": {
+    "mtime": 1777821607.3761446,
+    "hash": "a971408dc6d4dad3e3a7d4a20589379c"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\api\\request.ts": {
+    "mtime": 1777815532.7897394,
+    "hash": "b616e4d84b3d0353456d3397c91b222e"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\lib\\api\\types.ts": {
+    "mtime": 1777799132.9731495,
+    "hash": "8250051f74e834077da1fb356c0e4d93"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\packages\\db\\schema.py": {
+    "mtime": 1778067791.6691067,
+    "hash": "23b38e2f4da00304a0869c3ee33b0663"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\packages\\db\\migrations\\env.py": {
+    "mtime": 1777821049.8941872,
+    "hash": "84562fc401bc833ed321935f9655bb92"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\packages\\db\\migrations\\versions\\20260503_0001_baseline.py": {
+    "mtime": 1777821057.6612875,
+    "hash": "19ccff54c3378796d11a880b845da90c"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\conftest.py": {
+    "mtime": 1777734514.5125165,
+    "hash": "9aedfdb5d025aef0d686dd3383a7cb8a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_analysis_modules.py": {
+    "mtime": 1777860876.5289211,
+    "hash": "7f3a86745fd0f494dea3a0db610cf10a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_analyzer.py": {
+    "mtime": 1777724914.9626243,
+    "hash": "ee3675f5fa8c877336997d4cd0508ad0"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_channel_service.py": {
+    "mtime": 1778075011.0647562,
+    "hash": "cfc39b91d183e5c29a9ecb847aa15bb7"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_content_factory_helpers.py": {
+    "mtime": 1777861745.547799,
+    "hash": "0be373fe479fd457eff780317a5cbd21"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_health.py": {
+    "mtime": 1777734521.5165102,
+    "hash": "cb6cb4471d78756f3c9d14308b6f2322"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_recommender.py": {
+    "mtime": 1777823166.836605,
+    "hash": "dde6d80253ed87fd84e3b08a56d40551"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_seed_scripts.py": {
+    "mtime": 1777823178.8559673,
+    "hash": "062210654cfb1879e830c48ee448c108"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_sentiment_tokenizer.py": {
+    "mtime": 1778075332.859117,
+    "hash": "b53a05a022d2598c685938fee939a868"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_video_service.py": {
+    "mtime": 1778075035.0104072,
+    "hash": "54f645f3de081209f5415d7c18954913"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_youtube_api.py": {
+    "mtime": 1777822006.5756075,
+    "hash": "8e62f56abeb577a5bfe9015a119de857"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\__init__.py": {
+    "mtime": 1777724800.6830013,
+    "hash": "1231da8d7776e548364d6637aa9b260a"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_routers\\test_analysis.py": {
+    "mtime": 1777779379.6315298,
+    "hash": "39da92075f7eba6762eee005807b10c5"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_routers\\test_channels.py": {
+    "mtime": 1777734599.3863823,
+    "hash": "dceb05d6c63a425d5392f4ea573547a2"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_routers\\test_crawler.py": {
+    "mtime": 1777822961.0026674,
+    "hash": "810c1cecc5bf4140084d8fad93f91391"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_routers\\test_radar.py": {
+    "mtime": 1777823133.730387,
+    "hash": "35c3ea7f8e488135b80a49030f7e15d1"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\tests\\test_routers\\test_videos.py": {
+    "mtime": 1778075375.338174,
+    "hash": "453df3bd8525a48eed6df0c3a47d52fe"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\AGENTS.md": {
+    "mtime": 1777717532.1640174,
+    "hash": "4c2897a8f641d3d948ce48a354018752"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\architecture-audit-report-v2.md": {
+    "mtime": 1777724109.951551,
+    "hash": "dfd357e681ff121b7c0bf060de39ba84"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\architecture-audit-report-v3.md": {
+    "mtime": 1777724959.3481524,
+    "hash": "2db422eb1d5c53cad6e7edf6d9ad297d"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\architecture-audit-report.md": {
+    "mtime": 1777722701.6548636,
+    "hash": "f4f132d263a82b1f0d0309d12ec04a00"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\CODE_INTELLIGENCE.md": {
+    "mtime": 1778075415.0299964,
+    "hash": "56d8ef5bff99feec4fda8377ee11e018"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\docker-compose.yml": {
+    "mtime": 1777984316.6715758,
+    "hash": "b1a254eb1a55225b79a880cb406b5eed"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\FEATURE_STATUS.md": {
+    "mtime": 1777984316.6715758,
+    "hash": "72462905d4a2cd57a3185eed0576f37b"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\KIMI_BLUEPRINT_GAP_ANALYSIS.md": {
+    "mtime": 1777696582.2959368,
+    "hash": "893d81b06d34dca9985e61cf190d2a2b"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\PAIN_POINTS_REPORT.md": {
+    "mtime": 1777453105.1255343,
+    "hash": "9e8c479b920e9df7fe426e151b2c76c9"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\README.md": {
+    "mtime": 1777741195.715146,
+    "hash": "aa8f12005043551ac7a9abf734219a62"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\requirements.txt": {
+    "mtime": 1777984316.6755755,
+    "hash": "f68b006494d2b885b917539591275aa1"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\public\\images\\avatar-placeholder.svg": {
+    "mtime": 1777453155.1288617,
+    "hash": "d02a33ab726d09ff83fb479faa79a6b1"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\public\\images\\placeholder-channel.svg": {
+    "mtime": 1777453139.7788634,
+    "hash": "861913d9baf88014a46effe009a31585"
+  },
+  "D:\\Projects\\YouTube\\tubefactory-ocp\\apps\\web\\public\\images\\placeholder-video.svg": {
+    "mtime": 1777453171.8786435,
+    "hash": "17058c92516ee5562328b92ebcf419f0"
+  }
+}

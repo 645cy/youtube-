@@ -13,7 +13,7 @@ class CrawlerTaskCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=160)
     task_type: str = Field(
         settings.DEFAULT_CRAWLER_TASK_TYPE,
-        pattern="^(channel_latest|keyword_search|channel_stats)$",
+        pattern="^(channel_latest|keyword_search|channel_stats|channel_discovery)$",
     )
     target: str = Field(..., min_length=1, max_length=500)
     frequency: str = settings.DEFAULT_CRAWLER_FREQUENCY

@@ -13,4 +13,6 @@ google-auth-oauthlib>=1.1.0
 yt-dlp>=2023.12.0
 orjson>=3.9.0
 apscheduler>=3.10.4
+# CRG: Alembic provides reversible database migrations instead of startup-only create_all.
+alembic>=1.13.0
 

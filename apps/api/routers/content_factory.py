@@ -16,11 +16,15 @@
 """
 from __future__ import annotations
 
+from collections import Counter
 import logging
+import json
 import random
+import re
 from datetime import datetime
 from typing import Annotated, Any
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -108,6 +112,33 @@ TITLE_TEMPLATES: list[dict[str, Any]] = [
 ]
 
 
+def _render_title_template(template: str, topic: str) -> str:
+    replacements = {
+        "[主题]": topic,
+        "[数字]": str(random.randint(3, 10)),
+        "[年份]": str(datetime.now().year),
+        "[形容词]": random.choice(["超实用", "必看", "高效", "新手友好"]),
+        "[问题]": random.choice(["没效果", "卡住", "浪费时间"]),
+        "[基础]": "入门",
+        "[高级]": "精通",
+        "[方法]": random.choice(["系统方法", "实测流程", "自动化工具"]),
+        "[时间段]": random.choice(["7天内", "一个月内", "一周内"]),
+        "[成果]": random.choice(["提升效率", "做出结果", "完成变现验证"]),
+        "[错误做法]": random.choice(["低效方法", "盲目跟风", "重复搬运"]),
+        "[正确做法]": random.choice(["数据驱动", "先验证需求", "做差异化内容"]),
+        "[金额]": random.choice(["99", "299", "999"]),
+        "[产品]": topic,
+        "[目标]": f"做好{topic}",
+        "[困难条件]": "没有经验",
+        "[名人/专家]": random.choice(["头部创作者", "增长专家", "资深从业者"]),
+    }
+    rendered = template
+    for token, value in replacements.items():
+        rendered = rendered.replace(token, value)
+    # CRG: Prevent raw template tokens from leaking into user-facing factory suggestions.
+    return re.sub(r"\[[^\]]+\]", topic, rendered)
+
+
 @router.get("/topic-discovery")
 async def topic_discovery(
     channel_id: Annotated[int | None, Query()] = None,
@@ -123,76 +154,75 @@ async def topic_discovery(
       3. 结合热门标题模板生成选题建议
     """
     if channel_id and session:
-        result = await session.execute(
-            select(Video)
-            .where(Video.channel_id == channel_id)
-            .order_by(desc(Video.view_count))
-            .limit(20)
-        )
-        videos = result.scalars().all()
+        # CRG: Keep route orchestration separate from channel-video keyword analysis.
+        return await _discover_channel_topics(channel_id, session, limit)
+    return _discover_niche_topics(niche, limit)
 
-        if not videos:
-            raise HTTPException(status_code=404, detail="No videos found for this channel")
 
-        # 关键词提取 (简单分词)
-        all_words = []
-        for v in videos:
-            words = v.title.lower().split()
-            all_words.extend(w for w in words if len(w) > 2)
+async def _discover_channel_topics(channel_id: int, session: AsyncSession, limit: int) -> dict[str, Any]:
+    result = await session.execute(
+        select(Video)
+        .where(Video.channel_id == channel_id)
+        .order_by(desc(Video.view_count))
+        .limit(20)
+    )
+    videos = result.scalars().all()
+    if not videos:
+        raise HTTPException(status_code=404, detail="No videos found for this channel")
 
-        from collections import Counter
-        word_freq = Counter(all_words).most_common(10)
+    all_words = []
+    for video in videos:
+        all_words.extend(word for word in video.title.lower().split() if len(word) > 2)
+    word_freq = Counter(all_words).most_common(10)
 
-        # 高表现视频特征
-        avg_views = sum(v.view_count or 0 for v in videos) / max(len(videos), 1)
-        top_videos = [v for v in videos if (v.view_count or 0) > avg_views * 1.5]
+    avg_views = sum(video.view_count or 0 for video in videos) / max(len(videos), 1)
+    top_videos = [video for video in videos if (video.view_count or 0) > avg_views * 1.5]
 
-        topic_suggestions = []
-        for i, (word, count) in enumerate(word_freq[:limit]):
-            template = random.choice(TITLE_TEMPLATES)
-            topic_suggestions.append({
+    topic_suggestions = []
+    for i, (word, count) in enumerate(word_freq[:limit]):
+        template = random.choice(TITLE_TEMPLATES)
+        topic_suggestions.append({
+            "topic_id": i + 1,
+            "keyword": word,
+            "frequency": count,
+            "suggested_title": _render_title_template(template["template"], word),
+            "title_template": template["template"],
+            "template_category": template["category"],
+            "estimated_ctr_boost": template["ctr_boost"],
+            "inspiration_from": [video.title[:50] for video in top_videos[:2]],
+        })
+
+    return {
+        "channel_id": channel_id,
+        "analysis_basis": f"基于最近 {len(videos)} 个视频的分析",
+        "top_keywords": [{"word": word, "count": count} for word, count in word_freq],
+        "avg_views": round(avg_views, 2),
+        "topic_suggestions": topic_suggestions,
+    }
+
+
+def _discover_niche_topics(niche: str | None, limit: int) -> dict[str, Any]:
+    niches = {
+        "tech": ["AI工具评测", "编程效率提升", "最新硬件开箱", "软件对比"],
+        "education": ["学习方法", "考试技巧", "知识梳理", "错题分析"],
+        "lifestyle": ["时间管理", "习惯养成", "极简生活", "晨间流程"],
+        "finance": ["理财入门", "被动收入", "省钱技巧", "投资复盘"],
+        "entertainment": ["热门反应", "挑战视频", "合作视频", "QA互动"],
+    }
+    suggestions = niches.get(niche or "general", ["选题建议"])
+    return {
+        "niche": niche or "general",
+        "topic_suggestions": [
+            {
                 "topic_id": i + 1,
-                "keyword": word,
-                "frequency": count,
-                "suggested_title": template["template"].replace(
-                    "[主题]", word
-                ).replace("[数字]", str(random.randint(3, 10))),
-                "title_template": template["template"],
-                "template_category": template["category"],
-                "estimated_ctr_boost": template["ctr_boost"],
-                "inspiration_from": [v.title[:50] for v in top_videos[:2]],
-            })
-
-        return {
-            "channel_id": channel_id,
-            "analysis_basis": f"基于最近 {len(videos)} 个视频的分析",
-            "top_keywords": [{"word": w, "count": c} for w, c in word_freq],
-            "avg_views": round(avg_views, 2),
-            "topic_suggestions": topic_suggestions,
-        }
-    else:
-        # 通用选题建议 (基于 niche)
-        niches = {
-            "tech": ["AI工具评测", "编程效率提升", "最新硬件开箱", "软件对比"],
-            "education": ["学习方法", "考试技巧", "知识梳理", "错题分析"],
-            "lifestyle": ["时间管理", "习惯养成", "极简生活", "晨间流程"],
-            "finance": ["理财入门", "被动收入", "省钱技巧", "投资复盘"],
-            "entertainment": ["热门反应", "挑战视频", "合作视频", "QA互动"],
-        }
-        suggestions = niches.get(niche or "general", ["选题建议"])
-        return {
-            "niche": niche or "general",
-            "topic_suggestions": [
-                {
-                    "topic_id": i + 1,
-                    "keyword": topic,
-                    "suggested_title": f"关于{topic}你需要知道的一切",
-                    "template_category": "general",
-                    "estimated_ctr_boost": "medium",
-                }
-                for i, topic in enumerate(suggestions[:limit])
-            ],
-        }
+                "keyword": topic,
+                "suggested_title": f"关于{topic}你需要知道的一切",
+                "template_category": "general",
+                "estimated_ctr_boost": "medium",
+            }
+            for i, topic in enumerate(suggestions[:limit])
+        ],
+    }
 
 
 @router.get("/script-templates")
@@ -225,10 +255,10 @@ async def get_script_template(template_id: str) -> dict[str, Any]:
 
 @router.post("/shot-list")
 async def generate_shot_list(
-    template_id: str = "tutorial",
+    template_id: Annotated[str, Query()] = "tutorial",
     video_duration_minutes: Annotated[int, Query(ge=1, le=120)] = 10,
     camera_count: Annotated[int, Query(ge=1, le=4)] = 1,
-    has_b_roll: bool = True,
+    has_b_roll: Annotated[bool, Query()] = True,
 ) -> dict[str, Any]:
     """生成分镜拍摄清单.
 
@@ -240,47 +270,10 @@ async def generate_shot_list(
     template = SCRIPT_TEMPLATES[template_id]
     total_duration_sec = video_duration_minutes * 60
 
-    shot_list = []
-    for section in template["structure"]:
-        section_name = section["section"]
-        purpose = section["purpose"]
-        tips = section["tips"]
-
-        # 根据结构比例分配时长
-        duration_alloc = _calculate_section_duration(section_name, total_duration_sec)
-
-        shots = []
-        if section_name == "hook":
-            shots = [
-                {"shot": "特写 - 主讲人面部", "duration": f"0-{min(5, duration_alloc)}s", "note": "表情要有感染力"},
-                {"shot": "文字叠加 - 核心数字/问题", "duration": f"0-{min(5, duration_alloc)}s", "note": "大字标题动画"},
-            ]
-        elif section_name == "main_content" or section_name in ("testing", "rising_action"):
-            shot_count = max(2, duration_alloc // 30)
-            shots = [
-                {"shot": f"中景 - 步骤 {i+1} 演示", "duration": f"{i*30}s-{(i+1)*30}s", "note": "清晰展示操作"}
-                for i in range(min(shot_count, 10))
-            ]
-            if has_b_roll:
-                shots.append({"shot": "B-Roll - 相关画面/截图", "duration": "穿插", "note": "增加视觉丰富度"})
-        elif section_name == "cta":
-            shots = [
-                {"shot": "中景 - 主讲人正面", "duration": f"0-{duration_alloc}s", "note": "真诚呼吁"},
-                {"shot": "屏幕录制 - 订阅按钮动画", "duration": f"{max(0, duration_alloc-3)}s-{duration_alloc}s", "note": "视觉引导"},
-            ]
-        else:
-            shots = [
-                {"shot": "中景/特写 - 主讲人", "duration": f"0-{duration_alloc}s", "note": purpose},
-            ]
-
-        shot_list.append({
-            "section": section_name,
-            "purpose": purpose,
-            "allocated_duration_sec": duration_alloc,
-            "tips": tips,
-            "shots": shots,
-            "camera_angles": ["主机位 (中景)"] + (["辅机位 (特写)"] if camera_count > 1 else []),
-        })
+    shot_list = [
+        _build_section_shot_plan(section, total_duration_sec, camera_count, has_b_roll)
+        for section in template["structure"]
+    ]  # CRG: Move shot branching into helpers so the route only validates and assembles the response.
 
     total_shots = sum(len(s["shots"]) for s in shot_list)
     return {
@@ -294,6 +287,51 @@ async def generate_shot_list(
         "shot_list": shot_list,
         "equipment_checklist": _get_equipment_checklist(camera_count, has_b_roll),
     }
+
+
+def _build_section_shot_plan(
+    section: dict[str, Any],
+    total_duration_sec: int,
+    camera_count: int,
+    has_b_roll: bool,
+) -> dict[str, Any]:
+    section_name = section["section"]
+    duration_alloc = _calculate_section_duration(section_name, total_duration_sec)
+    return {
+        "section": section_name,
+        "purpose": section["purpose"],
+        "allocated_duration_sec": duration_alloc,
+        "tips": section["tips"],
+        "shots": _build_section_shots(section_name, duration_alloc, section["purpose"], has_b_roll),
+        "camera_angles": ["主机位 (中景)"] + (["辅机位 (特写)"] if camera_count > 1 else []),
+    }
+
+
+def _build_section_shots(
+    section_name: str,
+    duration_alloc: int,
+    purpose: str,
+    has_b_roll: bool,
+) -> list[dict[str, str]]:
+    if section_name == "hook":
+        return [
+            {"shot": "特写 - 主讲人面部", "duration": f"0-{min(5, duration_alloc)}s", "note": "表情要有感染力"},
+            {"shot": "文字叠加 - 核心数字/问题", "duration": f"0-{min(5, duration_alloc)}s", "note": "大字标题动画"},
+        ]
+    if section_name in ("main_content", "testing", "rising_action"):
+        shots = [
+            {"shot": f"中景 - 步骤 {i + 1} 演示", "duration": f"{i * 30}s-{(i + 1) * 30}s", "note": "清晰展示操作"}
+            for i in range(min(max(2, duration_alloc // 30), 10))
+        ]
+        if has_b_roll:
+            shots.append({"shot": "B-Roll - 相关画面/截图", "duration": "穿插", "note": "增加视觉丰富度"})
+        return shots
+    if section_name == "cta":
+        return [
+            {"shot": "中景 - 主讲人正面", "duration": f"0-{duration_alloc}s", "note": "真诚呼吁"},
+            {"shot": "屏幕录制 - 订阅按钮动画", "duration": f"{max(0, duration_alloc - 3)}s-{duration_alloc}s", "note": "视觉引导"},
+        ]
+    return [{"shot": "中景/特写 - 主讲人", "duration": f"0-{duration_alloc}s", "note": purpose}]
 
 
 def _calculate_section_duration(section_name: str, total_sec: int) -> int:
@@ -325,10 +363,10 @@ def _get_equipment_checklist(camera_count: int, has_b_roll: bool) -> list[str]:
 
 @router.post("/title-optimization")
 async def optimize_title(
-    title: str,
-    target_audience: str = "general",
-    has_face_in_thumbnail: bool = True,
-    has_text_overlay: bool = True,
+    title: Annotated[str, Query(min_length=1)],
+    target_audience: Annotated[str, Query()] = "general",
+    has_face_in_thumbnail: Annotated[bool, Query()] = True,
+    has_text_overlay: Annotated[bool, Query()] = True,
 ) -> dict[str, Any]:
     """标题优化建议 + 缩略图 CTR 估算.
 
@@ -397,20 +435,13 @@ def _match_title_template(actual: str, template: str) -> float:
 def _generate_improved_titles(original: str, templates: list[dict]) -> list[str]:
     """基于模板生成改进的标题建议."""
     suggestions = []
-    keywords = [w for w in original.lower().split() if len(w) > 2][:3]
-    keyword_str = keywords[0] if keywords else "主题"
+    words = [word for word in original.strip().split() if word]
+    keyword_str = " ".join(words[:4]) if words else "主题"
+    # CRG: Preserve short but meaningful phrases like "AI tools" instead of dropping them by word length.
 
     for t in templates:
         template_str = t["template"]
-        improved = template_str
-        improved = improved.replace("[主题]", keyword_str)
-        improved = improved.replace("[数字]", str(random.randint(3, 10)))
-        improved = improved.replace("[年份]", str(datetime.now().year))
-        improved = improved.replace("[形容词]", random.choice(["超实用", "必看", "终极", "高效"]))
-        improved = improved.replace("[问题]", random.choice(["失败", "没效果", "浪费时间"]))
-        improved = improved.replace("[基础]", "入门")
-        improved = improved.replace("[高级]", "精通")
-        suggestions.append(improved)
+        suggestions.append(_render_title_template(template_str, keyword_str))
 
     return suggestions
 
@@ -427,79 +458,92 @@ async def get_seo_keywords(
       2. 标题模板库匹配
       3. 长尾词扩展
     """
-    import httpx
+    suggestions, seen = await _fetch_youtube_suggest_keywords(topic)
+    template_keywords = _build_template_keywords(topic, seen)
+    base_keywords = _build_pattern_keywords(topic, seen)
+    # CRG: Keep the route thin; keyword generation branches now live in testable helpers.
+    all_keywords = suggestions + template_keywords + base_keywords
 
-    suggestions = []
-    seen = set()
+    _decorate_keyword_estimates(all_keywords[:limit])
 
-    # 1. YouTube Search Suggest API (公开接口)
+    return {
+        "topic": topic,
+        "total_suggestions": len(all_keywords),
+        "keywords": all_keywords[:limit],
+        "recommendation": "优先选择标注为 'youtube_suggest' 的关键词（来自真实搜索建议）",
+    }
+
+
+def _parse_youtube_suggest_payload(text: str) -> list[str]:
+    start = text.find("[[[")
+    if start == -1:
+        return []
+    depth = 0
+    end = start
+    for pos, char in enumerate(text[start:], start):
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+            if depth == 0:
+                end = pos + 1
+                break
+    data = json.loads(text[start:end])
+    # CRG: Use bracket-depth parsing so JSONP wrappers with extra brackets do not corrupt keywords.
+    return [item[0] for item in data[0] if item and item[0]]
+
+
+async def _fetch_youtube_suggest_keywords(topic: str) -> tuple[list[dict[str, Any]], set[str]]:
+    suggestions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    suffixes = ["", "how to", "tutorial", "review", "vs", "best", "beginner"]
+    from apps.api.config import settings
+    proxy = settings.PROXY_URL or None
+    client_kwargs: dict[str, Any] = {"timeout": 10}
+    if proxy:
+        client_kwargs["proxy"] = proxy
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            # 主词 suggest
-            resp = await client.get(
-                "https://suggestqueries.google.com/complete/search",
-                params={"client": "youtube", "ds": "yt", "q": topic},
-            )
-            # 返回 JSONP: window.google.ac.h(["topic",[["suggestion1",...]],...])
-            text = resp.text
-            # 提取 JSON 数组部分
-            start = text.find("[[[")
-            end = text.rfind("]]]") + 3
-            if start != -1 and end != -1:
-                import json
-                data = json.loads(text[start:end])
-                for item in data[0]:
-                    kw = item[0]
-                    if kw and kw not in seen:
-                        seen.add(kw)
-                        suggestions.append({
-                            "keyword": kw,
-                            "category": "suggest",
-                            "search_intent": "informational",
-                            "source": "youtube_suggest",
-                        })
-
-            # 长尾扩展: topic + "how to"
-            for suffix in ["how to", "tutorial", "review", "vs", "best", "beginner"]:
-                resp2 = await client.get(
+        async with httpx.AsyncClient(**client_kwargs) as client:
+            for suffix in suffixes:
+                query = topic if not suffix else f"{topic} {suffix}"
+                resp = await client.get(
                     "https://suggestqueries.google.com/complete/search",
-                    params={"client": "youtube", "ds": "yt", "q": f"{topic} {suffix}"},
+                    params={"client": "youtube", "ds": "yt", "q": query},
                 )
-                text2 = resp2.text
-                start2 = text2.find("[[[")
-                end2 = text2.rfind("]]]") + 3
-                if start2 != -1 and end2 != -1:
-                    data2 = json.loads(text2[start2:end2])
-                    for item in data2[0]:
-                        kw = item[0]
-                        if kw and kw not in seen:
-                            seen.add(kw)
-                            suggestions.append({
-                                "keyword": kw,
-                                "category": "long_tail",
-                                "search_intent": _get_intent("tutorial" if "how" in kw.lower() else "commercial"),
-                                "source": "youtube_suggest",
-                            })
+                category = "suggest" if not suffix else "long_tail"
+                for kw in _parse_youtube_suggest_payload(resp.text):
+                    if kw in seen:
+                        continue
+                    seen.add(kw)
+                    suggestions.append({
+                        "keyword": kw,
+                        "category": category,
+                        "search_intent": _get_intent("tutorial" if "how" in kw.lower() else "commercial"),
+                        "source": "youtube_suggest",
+                    })
     except Exception as e:
-        logger = logging.getLogger("seo")
-        logger.warning(f"YouTube Suggest API failed: {e}")
+        logging.getLogger("seo").warning(f"YouTube Suggest API failed: {e}")
+    return suggestions, seen
 
-    # 2. 标题模板匹配
-    template_keywords = []
-    for t in TITLE_TEMPLATES:
-        kw = t["template"].replace("[主题]", topic).replace("[数字]", str(random.randint(3, 10)))
-        kw = kw.replace("[年份]", str(datetime.now().year))
-        if kw not in seen:
-            seen.add(kw)
-            template_keywords.append({
-                "keyword": kw,
-                "category": t["category"],
-                "search_intent": _get_intent(t["category"]),
-                "source": "template",
-            })
 
-    # 3. 基础关键词兜底
-    base_keywords = []
+def _build_template_keywords(topic: str, seen: set[str]) -> list[dict[str, Any]]:
+    keywords: list[dict[str, Any]] = []
+    for template in TITLE_TEMPLATES:
+        kw = _render_title_template(template["template"], topic)
+        if kw in seen:
+            continue
+        seen.add(kw)
+        keywords.append({
+            "keyword": kw,
+            "category": template["category"],
+            "search_intent": _get_intent(template["category"]),
+            "source": "template",
+        })
+    return keywords
+
+
+def _build_pattern_keywords(topic: str, seen: set[str]) -> list[dict[str, Any]]:
+    keywords: list[dict[str, Any]] = []
     keyword_patterns = {
         "tutorial": ["教程", "入门", "新手", "步骤", "怎么做", "完整版", "详细", "零基础"],
         "review": ["评测", "开箱", "体验", "值得买吗", "对比", "优缺点", "真实使用"],
@@ -508,47 +552,31 @@ async def get_seo_keywords(
     }
     for category, words in keyword_patterns.items():
         for word in words:
-            kw = f"{topic} {word}"
-            if kw not in seen:
+            for kw in (f"{topic} {word}", f"{word} {topic}"):
+                if kw in seen:
+                    continue
                 seen.add(kw)
-                base_keywords.append({
+                keywords.append({
                     "keyword": kw,
                     "category": category,
                     "search_intent": _get_intent(category),
                     "source": "pattern",
                 })
-            kw2 = f"{word} {topic}"
-            if kw2 not in seen:
-                seen.add(kw2)
-                base_keywords.append({
-                    "keyword": kw2,
-                    "category": category,
-                    "search_intent": _get_intent(category),
-                    "source": "pattern",
-                })
+    return keywords
 
-    # 合并并排序: suggest 优先, 然后是 template, 最后是 pattern
-    all_keywords = suggestions + template_keywords + base_keywords
 
-    # 搜索量估算: suggest 词给较高值, 其他递减
-    for i, k in enumerate(all_keywords[:limit]):
-        if k["source"] == "youtube_suggest":
-            k["estimated_monthly_searches"] = random.randint(5000, 50000)
-            k["competition"] = random.choice(["medium", "high"])
-        elif k["source"] == "template":
-            k["estimated_monthly_searches"] = random.randint(1000, 20000)
-            k["competition"] = random.choice(["low", "medium"])
+def _decorate_keyword_estimates(keywords: list[dict[str, Any]]) -> None:
+    for i, keyword in enumerate(keywords):
+        if keyword["source"] == "youtube_suggest":
+            keyword["estimated_monthly_searches"] = random.randint(5000, 50000)
+            keyword["competition"] = random.choice(["medium", "high"])
+        elif keyword["source"] == "template":
+            keyword["estimated_monthly_searches"] = random.randint(1000, 20000)
+            keyword["competition"] = random.choice(["low", "medium"])
         else:
-            k["estimated_monthly_searches"] = random.randint(100, 5000)
-            k["competition"] = random.choice(["low", "medium", "high"])
-        k["priority"] = i + 1
-
-    return {
-        "topic": topic,
-        "total_suggestions": len(all_keywords),
-        "keywords": all_keywords[:limit],
-        "recommendation": "优先选择标注为 'youtube_suggest' 的关键词（来自真实搜索建议）",
-    }
+            keyword["estimated_monthly_searches"] = random.randint(100, 5000)
+            keyword["competition"] = random.choice(["low", "medium", "high"])
+        keyword["priority"] = i + 1
 
 
 def _get_intent(category: str) -> str:
@@ -666,11 +694,90 @@ _SCRIPT_CONTENT_TEMPLATES: dict[str, dict[str, Any]] = {
 }
 
 
+_SCRIPT_SEGMENT_TYPE_MAP: dict[str, str] = {
+    "hook": "hook", "intro": "pain", "prerequisites": "pain",
+    "context": "pain", "main_content": "solution", "testing": "demo",
+    "unboxing": "demo", "rising_action": "solution", "climax": "solution",
+    "pros_cons": "solution", "verdict": "solution", "summary": "solution",
+    "resolution": "solution", "comparison_table": "solution",
+    "recommendation": "solution", "cta": "cta",
+    "option_a": "solution", "option_b": "solution", "option_c": "solution",
+}
+
+_SCRIPT_SEGMENT_LABEL_MAP: dict[str, str] = {
+    "hook": "Hook 开场", "intro": "引入/痛点", "prerequisites": "前置说明",
+    "context": "背景铺垫", "main_content": "核心内容", "testing": "实测演示",
+    "unboxing": "开箱展示", "rising_action": "情节展开", "climax": "高潮转折",
+    "pros_cons": "优缺点", "verdict": "最终结论", "summary": "要点回顾",
+    "resolution": "结局感悟", "comparison_table": "对比总结",
+    "recommendation": "最终推荐", "cta": "CTA 行动",
+    "option_a": "选项A详解", "option_b": "选项B详解", "option_c": "选项C详解",
+}
+
+_SCRIPT_TOPIC_REPLACEMENTS: dict[str, str] = {
+    "{step1}": "理解{topic}的核心概念",
+    "{step2}": "掌握{topic}的关键操作",
+    "{step3}": "应用{topic}解决实际问题",
+    "{point1}": "{topic}的基本原理",
+    "{point2}": "{topic}的实操技巧",
+    "{point3}": "{topic}的常见误区",
+    "{next_topic}": "进阶{topic}技巧",
+    "{target_user}": "对{topic}有需求的用户",
+    "{condition}": "预算充足且注重{topic}体验",
+    "{situation}": "{topic}正处于关键时期",
+    "{lesson}": "面对{topic}，坚持和耐心是最重要的",
+}
+
+_SCRIPT_STATIC_REPLACEMENTS: dict[str, str] = {
+    "{items}": "相关资料和工具",
+    "{audience}": "对此话题感兴趣的观众",
+    "{dimensions}": "外观、性能、价格",
+    "{accessories}": "说明书、数据线等",
+    "{feature1}": "核心功能",
+    "{feature2}": "附加功能",
+    "{pro1}": "功能全面",
+    "{pro2}": "易于上手",
+    "{con1}": "价格偏高",
+    "{con2}": "续航一般",
+    "{event1}": "遇到了第一个挑战",
+    "{event2}": "情况发生了变化",
+    "{direction}": "复杂起来",
+    "{climax_event}": "做出了一个关键决定",
+    "{outcome}": "事情得到了圆满解决",
+    "{option_a}": "方案A",
+    "{option_b}": "方案B",
+    "{option_c}": "方案C",
+    "{desc_a}": "这是一个经典的选择，稳定可靠。",
+    "{desc_b}": "这个方案更具创新性，适合追求新鲜感的用户。",
+    "{desc_c}": "这是一个折中方案，兼顾了稳定性和创新性。",
+    "{aspect1}": "核心功能",
+    "{aspect2}": "性价比",
+    "{winner1}": "方案A",
+    "{winner2}": "方案B",
+    "{condition_a}": "注重稳定性",
+    "{condition_b}": "喜欢尝鲜",
+    "{rec_a}": "方案A",
+    "{rec_b}": "方案B",
+}
+
+_SCRIPT_RANDOM_REPLACEMENTS: dict[str, list[str]] = {
+    "{verdict}": ["值得入手", "谨慎考虑", "性价比不错"],
+    "{packaging}": ["简洁", "精致", "中规中矩"],
+    "{design}": ["很时尚", "比较保守", "有辨识度"],
+    "{craftsmanship}": ["扎实", "一般", "精细"],
+    "{value}": ["还算值", "性价比一般", "非常划算"],
+    "{performance1}": ["超出预期", "符合预期", "略低于预期"],
+    "{performance2}": ["表现不错", "中规中矩", "有待改进"],
+    "{recommendation}": ["非常推荐", "可以考虑", "按需购买"],
+    "{feeling}": ["非常激动", "五味杂陈", "豁然开朗"],
+}
+
+
 @router.post("/ai-script")
 async def ai_script_generate(
-    niche: str = "general",
-    template_id: str = "tutorial",
-    topic: str = "",
+    niche: Annotated[str, Query()] = "general",
+    template_id: Annotated[str, Query()] = "tutorial",
+    topic: Annotated[str, Query()] = "",
 ) -> dict[str, Any]:
     """AI 生成脚本 — 基于模板 + 规则引擎填充内容.
 
@@ -683,106 +790,16 @@ async def ai_script_generate(
     structure = template["structure"]
     content_templates = _SCRIPT_CONTENT_TEMPLATES.get(template_id, {})
 
-    import random
-
     topic_kw = topic or niche or "这个话题"
     adj = random.choice(["超实用", "必看", "终极", "高效", "简单"])
     num = random.randint(3, 10)
     host = random.choice(["主播", "UP主", "创作者"])
     time_span = random.choice(["一周", "一个月", "三个月"])
-
-    type_map: dict[str, str] = {
-        "hook": "hook", "intro": "pain", "prerequisites": "pain",
-        "context": "pain", "main_content": "solution", "testing": "demo",
-        "unboxing": "demo", "rising_action": "solution", "climax": "solution",
-        "pros_cons": "solution", "verdict": "solution", "summary": "solution",
-        "resolution": "solution", "comparison_table": "solution",
-        "recommendation": "solution", "cta": "cta",
-        "option_a": "solution", "option_b": "solution", "option_c": "solution",
-    }
-    label_map: dict[str, str] = {
-        "hook": "Hook 开场", "intro": "引入/痛点", "prerequisites": "前置说明",
-        "context": "背景铺垫", "main_content": "核心内容", "testing": "实测演示",
-        "unboxing": "开箱展示", "rising_action": "情节展开", "climax": "高潮转折",
-        "pros_cons": "优缺点", "verdict": "最终结论", "summary": "要点回顾",
-        "resolution": "结局感悟", "comparison_table": "对比总结",
-        "recommendation": "最终推荐", "cta": "CTA 行动",
-        "option_a": "选项A详解", "option_b": "选项B详解", "option_c": "选项C详解",
-    }
-
-    segments = []
-    for i, section in enumerate(structure):
-        section_name = section["section"]
-        templates = content_templates.get(section_name, [""])
-        content_template = random.choice(templates) if templates else ""
-
-        # 填充变量
-        content = content_template
-        content = content.replace("{topic}", topic_kw)
-        content = content.replace("{adj}", adj)
-        content = content.replace("{num}", str(num))
-        content = content.replace("{host}", host)
-        content = content.replace("{time}", time_span)
-        content = content.replace("{product}", topic_kw)
-        content = content.replace("{step1}", f"理解{topic_kw}的核心概念")
-        content = content.replace("{step2}", f"掌握{topic_kw}的关键操作")
-        content = content.replace("{step3}", f"应用{topic_kw}解决实际问题")
-        content = content.replace("{point1}", f"{topic_kw}的基本原理")
-        content = content.replace("{point2}", f"{topic_kw}的实操技巧")
-        content = content.replace("{point3}", f"{topic_kw}的常见误区")
-        content = content.replace("{items}", "相关资料和工具")
-        content = content.replace("{audience}", "对此话题感兴趣的观众")
-        content = content.replace("{next_topic}", f"进阶{topic_kw}技巧")
-        content = content.replace("{verdict}", random.choice(["值得入手", "谨慎考虑", "性价比不错"]))
-        content = content.replace("{dimensions}", "外观、性能、价格")
-        content = content.replace("{packaging}", random.choice(["简洁", "精致", "中规中矩"]))
-        content = content.replace("{accessories}", "说明书、数据线等")
-        content = content.replace("{design}", random.choice(["很时尚", "比较保守", "有辨识度"]))
-        content = content.replace("{craftsmanship}", random.choice(["扎实", "一般", "精细"]))
-        content = content.replace("{value}", random.choice(["还算值", "性价比一般", "非常划算"]))
-        content = content.replace("{feature1}", "核心功能")
-        content = content.replace("{feature2}", "附加功能")
-        content = content.replace("{performance1}", random.choice(["超出预期", "符合预期", "略低于预期"]))
-        content = content.replace("{performance2}", random.choice(["表现不错", "中规中矩", "有待改进"]))
-        content = content.replace("{pro1}", "功能全面")
-        content = content.replace("{pro2}", "易于上手")
-        content = content.replace("{con1}", "价格偏高")
-        content = content.replace("{con2}", "续航一般")
-        content = content.replace("{target_user}", f"对{topic_kw}有需求的用户")
-        content = content.replace("{condition}", f"预算充足且注重{topic_kw}体验")
-        content = content.replace("{recommendation}", random.choice(["非常推荐", "可以考虑", "按需购买"]))
-        content = content.replace("{situation}", f"{topic_kw}正处于关键时期")
-        content = content.replace("{event1}", "遇到了第一个挑战")
-        content = content.replace("{event2}", "情况发生了变化")
-        content = content.replace("{direction}", "复杂起来")
-        content = content.replace("{climax_event}", "做出了一个关键决定")
-        content = content.replace("{feeling}", random.choice(["非常激动", "五味杂陈", "豁然开朗"]))
-        content = content.replace("{outcome}", "事情得到了圆满解决")
-        content = content.replace("{lesson}", f"面对{topic_kw}，坚持和耐心是最重要的")
-        content = content.replace("{option_a}", "方案A")
-        content = content.replace("{option_b}", "方案B")
-        content = content.replace("{option_c}", "方案C")
-        content = content.replace("{desc_a}", "这是一个经典的选择，稳定可靠。")
-        content = content.replace("{desc_b}", "这个方案更具创新性，适合追求新鲜感的用户。")
-        content = content.replace("{desc_c}", "这是一个折中方案，兼顾了稳定性和创新性。")
-        content = content.replace("{aspect1}", "核心功能")
-        content = content.replace("{aspect2}", "性价比")
-        content = content.replace("{winner1}", "方案A")
-        content = content.replace("{winner2}", "方案B")
-        content = content.replace("{condition_a}", "注重稳定性")
-        content = content.replace("{condition_b}", "喜欢尝鲜")
-        content = content.replace("{rec_a}", "方案A")
-        content = content.replace("{rec_b}", "方案B")
-
-        segments.append({
-            "id": f"seg-{template_id}-{i}",
-            "type": type_map.get(section_name, "solution"),
-            "title": label_map.get(section_name, section_name),
-            "content": content,
-            "duration": 30,
-            "purpose": section.get("purpose", ""),
-            "tips": section.get("tips", ""),
-        })
+    replacements = _build_script_replacements(topic_kw, adj, num, host, time_span)
+    segments = [
+        _build_script_segment(template_id, index, section, content_templates, replacements)
+        for index, section in enumerate(structure)
+    ]  # CRG: Template rendering is data-driven instead of embedding every replacement inside the route.
 
     return {
         "template_id": template_id,
@@ -793,12 +810,62 @@ async def ai_script_generate(
     }
 
 
+def _build_script_replacements(
+    topic_kw: str,
+    adj: str,
+    num: int,
+    host: str,
+    time_span: str,
+) -> dict[str, str]:
+    replacements = {
+        "{topic}": topic_kw,
+        "{product}": topic_kw,
+        "{adj}": adj,
+        "{num}": str(num),
+        "{host}": host,
+        "{time}": time_span,
+    }
+    replacements.update({
+        token: template.format(topic=topic_kw)
+        for token, template in _SCRIPT_TOPIC_REPLACEMENTS.items()
+    })
+    replacements.update(_SCRIPT_STATIC_REPLACEMENTS)
+    replacements.update({
+        token: random.choice(options)
+        for token, options in _SCRIPT_RANDOM_REPLACEMENTS.items()
+    })
+    return replacements
+
+
+def _build_script_segment(
+    template_id: str,
+    index: int,
+    section: dict[str, Any],
+    content_templates: dict[str, list[str]],
+    replacements: dict[str, str],
+) -> dict[str, Any]:
+    section_name = section["section"]
+    templates = content_templates.get(section_name, [""])
+    content = random.choice(templates) if templates else ""
+    for token, value in replacements.items():
+        content = content.replace(token, value)
+    return {
+        "id": f"seg-{template_id}-{index}",
+        "type": _SCRIPT_SEGMENT_TYPE_MAP.get(section_name, "solution"),
+        "title": _SCRIPT_SEGMENT_LABEL_MAP.get(section_name, section_name),
+        "content": content,
+        "duration": 30,
+        "purpose": section.get("purpose", ""),
+        "tips": section.get("tips", ""),
+    }
+
+
 @router.post("/thumbnail-suggestions")
 async def thumbnail_suggestions(
-    title: str,
-    niche: str = "general",
-    has_face: bool = True,
-    has_text: bool = True,
+    title: Annotated[str, Query(min_length=1)],
+    niche: Annotated[str, Query()] = "general",
+    has_face: Annotated[bool, Query()] = True,
+    has_text: Annotated[bool, Query()] = True,
 ) -> dict[str, Any]:
     """Generate practical thumbnail directions and CTR diagnostics."""
     ctr = ThumbnailCTREstimator.estimate(title, has_face, has_text)
@@ -857,8 +924,8 @@ async def thumbnail_suggestions(
 
 @router.post("/publish-time-optimization")
 async def publish_time_optimization(
-    niche: str = "general",
-    target_region: str = settings.DEFAULT_TARGET_REGION,
+    niche: Annotated[str, Query()] = "general",
+    target_region: Annotated[str, Query()] = settings.DEFAULT_TARGET_REGION,
     video_length_minutes: Annotated[int, Query(ge=1, le=240)] = 10,
 ) -> dict[str, Any]:
     """Recommend publishing windows using niche and audience-region heuristics."""
@@ -909,87 +976,86 @@ async def publish_time_optimization(
     }
 
 
+_HUMAN_REVIEW_BASE_ITEMS: list[dict[str, str]] = [
+    {
+        "id": "topic-decision",
+        "stage": "Topic",
+        "title": "Topic decision log",
+        "evidence": "Selected topic, rejected alternatives, target viewer, and reason for expected demand.",
+        "why": "Shows human editorial input and avoids fully automated bulk publishing.",
+    },
+    {
+        "id": "source-provenance",
+        "stage": "Research",
+        "title": "Source provenance",
+        "evidence": "Original URLs, notes, screenshots, data timestamps, and any license constraints.",
+        "why": "Reduces copyright risk and makes claims traceable.",
+    },
+    {
+        "id": "script-revision",
+        "stage": "Script",
+        "title": "Human script revision",
+        "evidence": "Before/after script notes, added opinions, corrections, examples, or demonstrations.",
+        "why": "Documents substantial transformation instead of raw AI output.",
+    },
+    {
+        "id": "asset-rights",
+        "stage": "Assets",
+        "title": "Asset rights check",
+        "evidence": "Music, footage, screenshots, voice, image, and font usage notes.",
+        "why": "Prevents reusable-content and copyright issues.",
+    },
+    {
+        "id": "thumbnail-title-ab",
+        "stage": "Packaging",
+        "title": "Title and thumbnail A/B record",
+        "evidence": "Two title variants, two thumbnail variants, expected CTR driver, final pick.",
+        "why": "Connects packaging choices to measurable experiments.",
+    },
+    {
+        "id": "final-review",
+        "stage": "Publish",
+        "title": "Final human review",
+        "evidence": "Fact check, disclosure decision, monetization suitability, and publish-time notes.",
+        "why": "Creates a release gate before uploading.",
+    },
+    {
+        "id": "postmortem",
+        "stage": "Post-publish",
+        "title": "24h performance review",
+        "evidence": "CTR, retention, comments, traffic source, next experiment.",
+        "why": "Feeds the intelligence system back into the next video.",
+    },
+]
+
+_HUMAN_REVIEW_AI_TOOL_ITEMS: list[dict[str, str]] = [
+    {
+        "id": "screen-demo-proof",
+        "stage": "Production",
+        "title": "Screen demo proof",
+        "evidence": "Recorded operation steps, result screenshots, and limitations found during testing.",
+        "why": "For AI tool tutorials, real use is the strongest differentiator.",
+    },
+    {
+        "id": "affiliate-disclosure",
+        "stage": "Monetization",
+        "title": "Affiliate disclosure",
+        "evidence": "Pinned comment, description disclosure, link target, and product-fit reason.",
+        "why": "Keeps monetization transparent and aligned with the audience.",
+    },
+]
+
+
 @router.get("/human-review-checklist")
 async def human_review_checklist(
     niche: Annotated[str, Query()] = settings.DEFAULT_NICHE,
     video_type: Annotated[str, Query()] = settings.DEFAULT_VIDEO_TYPE,
 ) -> dict[str, Any]:
-    """Return a human-in-the-loop review and evidence checklist.
-
-    This turns the KimiAgent blueprint requirement into a practical production
-    gate: every AI-assisted video should keep enough human decision records,
-    source notes, and compliance checks to support YouTube monetization review.
-    """
-    base_items = [
-        {
-            "id": "topic-decision",
-            "stage": "Topic",
-            "title": "Topic decision log",
-            "evidence": "Selected topic, rejected alternatives, target viewer, and reason for expected demand.",
-            "why": "Shows human editorial input and avoids fully automated bulk publishing.",
-        },
-        {
-            "id": "source-provenance",
-            "stage": "Research",
-            "title": "Source provenance",
-            "evidence": "Original URLs, notes, screenshots, data timestamps, and any license constraints.",
-            "why": "Reduces copyright risk and makes claims traceable.",
-        },
-        {
-            "id": "script-revision",
-            "stage": "Script",
-            "title": "Human script revision",
-            "evidence": "Before/after script notes, added opinions, corrections, examples, or demonstrations.",
-            "why": "Documents substantial transformation instead of raw AI output.",
-        },
-        {
-            "id": "asset-rights",
-            "stage": "Assets",
-            "title": "Asset rights check",
-            "evidence": "Music, footage, screenshots, voice, image, and font usage notes.",
-            "why": "Prevents reusable-content and copyright issues.",
-        },
-        {
-            "id": "thumbnail-title-ab",
-            "stage": "Packaging",
-            "title": "Title and thumbnail A/B record",
-            "evidence": "Two title variants, two thumbnail variants, expected CTR driver, final pick.",
-            "why": "Connects packaging choices to measurable experiments.",
-        },
-        {
-            "id": "final-review",
-            "stage": "Publish",
-            "title": "Final human review",
-            "evidence": "Fact check, disclosure decision, monetization suitability, and publish-time notes.",
-            "why": "Creates a release gate before uploading.",
-        },
-        {
-            "id": "postmortem",
-            "stage": "Post-publish",
-            "title": "24h performance review",
-            "evidence": "CTR, retention, comments, traffic source, next experiment.",
-            "why": "Feeds the intelligence system back into the next video.",
-        },
-    ]
-
-    ai_tool_items = [
-        {
-            "id": "screen-demo-proof",
-            "stage": "Production",
-            "title": "Screen demo proof",
-            "evidence": "Recorded operation steps, result screenshots, and limitations found during testing.",
-            "why": "For AI tool tutorials, real use is the strongest differentiator.",
-        },
-        {
-            "id": "affiliate-disclosure",
-            "stage": "Monetization",
-            "title": "Affiliate disclosure",
-            "evidence": "Pinned comment, description disclosure, link target, and product-fit reason.",
-            "why": "Keeps monetization transparent and aligned with the audience.",
-        },
-    ]
-
-    items = base_items + (ai_tool_items if niche in {"ai_tools", "tech", "saas"} else [])
+    """Return a human-in-the-loop review and evidence checklist."""
+    items = list(_HUMAN_REVIEW_BASE_ITEMS)
+    if niche in {"ai_tools", "tech", "saas"}:
+        items.extend(_HUMAN_REVIEW_AI_TOOL_ITEMS)
+    # CRG: Keep static checklist data outside the route so the endpoint remains a thin API adapter.
 
     return {
         "niche": niche,

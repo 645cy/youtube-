@@ -1,13 +1,17 @@
 """
-频道管理 Router — CRUD + 搜索 + 统计
+频道管理 Router — CRUD + 搜索 + 统计 + 批量导入
 路由前缀: /api/v1/channels
+
+职责边界:
+  - 本层只负责 HTTP 参数校验、错误响应 shaping、路由协调.
+  - 所有数据库操作和 YouTube 数据同步委托给 channel_service.
+  - 见 CODE_INTELLIGENCE.md "Fat Router" 优化记录.
 """
 from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from sqlalchemy import desc, func, select
@@ -15,25 +19,48 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.api.schemas import ChannelCreate, ChannelList, ChannelRead, ChannelUpdate
 from apps.api.config import settings
-from packages.db.schema import Channel, Video, MetricHistory, MetricType, get_db_session
+from apps.api.services.channel_service import (
+    backfill_channel_thumbnails,
+    get_channel_by_youtube_id,
+    import_channel_from_youtube,
+    repair_channel_thumbnails,
+)
+from packages.db.schema import Channel, Video, get_db_session
 
 router = APIRouter(prefix="/channels", tags=["Channels"])
+logger = logging.getLogger(__name__)
 
 
-def _pick_thumbnail(snippet: dict | None) -> str | None:
-    """从 YouTube snippet 中按质量优先级提取缩略图 URL."""
-    if not snippet:
-        return None
-    thumbnails = snippet.get("thumbnails", {}) or {}
-    for key in ("high", "medium", "default"):
-        url = (thumbnails.get(key) or {}).get("url")
-        if isinstance(url, str) and url.strip():
-            return url.strip()
-    return None
+def _ensure_youtube_api_key() -> str:
+    key = settings.YOUTUBE_API_KEY.strip()
+    if not key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="YouTube API key is not configured. Set YOUTUBE_API_KEY or use ytdlp fallback.",
+        )
+    return key
 
 
-def _missing_thumbnail(value: str | None) -> bool:
-    return not isinstance(value, str) or not value.strip()
+def _first_search_snippet(search_result: dict[str, Any], query: str) -> tuple[str, dict[str, Any]]:
+    """从 YouTube 搜索结果中提取第一个频道的 ID 和 snippet.
+
+    Raises:
+        HTTPException: 404 当搜索结果为空或无法解析频道 ID 时.
+    """
+    items = search_result.get("items", [])
+    if not items:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No YouTube channel found for query: {query}",
+        )
+    snippet = items[0].get("snippet", {})
+    youtube_id = snippet.get("channelId")
+    if not youtube_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Could not resolve channel ID for query: {query}",
+        )
+    return youtube_id, snippet
 
 
 @router.post("", response_model=ChannelRead, status_code=status.HTTP_201_CREATED)
@@ -42,7 +69,6 @@ async def create_channel(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> Channel:
     """创建新频道记录."""
-    # 检查 youtube_id 是否已存在
     existing = await session.execute(
         select(Channel).where(Channel.youtube_id == data.youtube_id)
     )
@@ -102,19 +128,13 @@ async def list_channels(
         "limit": limit,
     }
 
+
 @router.post("/search", response_model=ChannelRead)
 async def search_channels(
     query: Annotated[str, Query(min_length=1, max_length=100)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> Channel:
-    """通过 DualTrackExtractor 搜索频道并入库.
-
-    流程:
-      1. DualTrackExtractor.search_channels() 查找频道 (API → yt-dlp → CrawlerEngine)
-      2. DualTrackExtractor.get_channel_details() 获取详细统计
-      3. 存入数据库 (去重: youtube_id)
-      4. 返回 ChannelRead
-    """
+    """通过 DualTrackExtractor 搜索频道、去重并入库."""
     # 先尝试本地数据库搜索
     local_result = await session.execute(
         select(Channel).where(Channel.title.ilike(f"%{query}%"))
@@ -125,87 +145,21 @@ async def search_channels(
 
     # 使用双轨提取器搜索
     from apps.api.services.youtube_api import DualTrackExtractor
-    extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
+    extractor = DualTrackExtractor(api_key=_ensure_youtube_api_key())
 
     try:
-        # CRG: Bound API/crawler fallback so channel search fails fast instead of hanging the UI.
         search_result = await asyncio.wait_for(
             extractor.search_channels(query, max_results=1),
             timeout=12,
         )
-        items = search_result.get("items", [])
-        if not items:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"No YouTube channel found for query: {query}",
-            )
+        youtube_id, snippet = _first_search_snippet(search_result, query)
 
-        snippet = items[0].get("snippet", {})
-        youtube_id = snippet.get("channelId")
-        # web 抓取可能没有 channelId，需要从 title 推断或返回错误
-        if not youtube_id:
-            # 尝试从 web 抓取的结果中查找 handle，然后获取频道 ID
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Could not resolve channel ID for query: {query}",
-            )
-
-        title = snippet.get("title", "Unknown")
-        description = snippet.get("description")
-        thumbnail_url = _pick_thumbnail(snippet)
-
-        # 检查是否已存在
-        existing = await session.execute(
-            select(Channel).where(Channel.youtube_id == youtube_id)
-        )
-        channel = existing.scalar_one_or_none()
+        channel = await get_channel_by_youtube_id(session, youtube_id)
         if channel:
             return channel
 
-        # 获取详细统计 (双轨: API → yt-dlp)
-        detail_result = await extractor.get_channel_details([youtube_id])
-        detail_items = detail_result.get("items", [])
-        if detail_items:
-            stats = detail_items[0].get("statistics", {})
-            detail_snippet = detail_items[0].get("snippet", {})
-            subscriber_count = int(stats["subscriberCount"]) if stats.get("subscriberCount") else None
-            video_count = int(stats["videoCount"]) if stats.get("videoCount") else None
-            view_count = int(stats["viewCount"]) if stats.get("viewCount") else None
-            country = detail_snippet.get("country")
-        else:
-            subscriber_count = video_count = view_count = None
-            country = None
-
-        # 入库
-        channel = Channel(
-            youtube_id=youtube_id,
-            title=title,
-            description=description,
-            subscriber_count=subscriber_count,
-            video_count=video_count,
-            view_count=view_count,
-            thumbnail_url=thumbnail_url,
-            country=country,
-        )
-        session.add(channel)
-        await session.flush()
+        channel = await import_channel_from_youtube(session, extractor, youtube_id, snippet)
         await session.refresh(channel)
-
-        # 写入初始指标历史，支撑增长曲线
-        from datetime import timezone
-        now = datetime.now(timezone.utc)
-        if subscriber_count is not None:
-            session.add(MetricHistory(
-                channel_id=channel.id, metric_type=MetricType.SUBSCRIBER,
-                value=float(subscriber_count), recorded_at=now,
-            ))
-        if view_count is not None:
-            session.add(MetricHistory(
-                channel_id=channel.id, metric_type=MetricType.VIEW,
-                value=float(view_count), recorded_at=now,
-            ))
-        await session.flush()
-
         return channel
 
     except HTTPException:
@@ -216,6 +170,7 @@ async def search_channels(
             detail="Channel search timed out. Check YouTube API access or configure a proxy.",
         )
     except Exception as e:
+        logger.warning(f"Channel search unavailable for '{query}': {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Channel search unavailable: {type(e).__name__}. Please check network connection.",
@@ -227,7 +182,6 @@ async def list_tags(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[dict[str, str | int]]:
     """获取所有热门标签 (从频道 niche 字段聚合)."""
-    from sqlalchemy import func
     result = await session.execute(
         select(Channel.niche, func.count(Channel.id).label("count"))
         .where(Channel.niche.isnot(None))
@@ -242,68 +196,30 @@ async def list_tags(
 
 @router.post("/import-youtube", response_model=ChannelRead, status_code=status.HTTP_201_CREATED)
 async def import_from_youtube(
-    youtube_id: str,
+    youtube_id: Annotated[str, Query(min_length=1)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> Channel:
     """通过 YouTube ID 导入频道信息 (调用双轨 API)."""
-    # 检查是否已存在
-    existing = await session.execute(
-        select(Channel).where(Channel.youtube_id == youtube_id)
-    )
-    existing_channel = existing.scalar_one_or_none()
+    existing_channel = await get_channel_by_youtube_id(session, youtube_id)
     if existing_channel:
         return existing_channel
 
-    # 使用双轨提取器获取频道数据
     from apps.api.services.youtube_api import DualTrackExtractor
-    extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
-    result = await extractor.get_channel_details([youtube_id])
-
-    items = result.get("items", [])
-    if not items:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"YouTube channel {youtube_id} not found",
+    extractor = DualTrackExtractor(api_key=_ensure_youtube_api_key())
+    try:
+        channel = await import_channel_from_youtube(
+            session, extractor, youtube_id, {}, require_detail=True
         )
-
-    item = items[0]
-    snippet = item.get("snippet", {})
-    stats = item.get("statistics", {})
-
-    subscriber_count = int(stats.get("subscriberCount", 0)) if stats.get("subscriberCount") else None
-    video_count = int(stats.get("videoCount", 0)) if stats.get("videoCount") else None
-    view_count = int(stats.get("viewCount", 0)) if stats.get("viewCount") else None
-
-    channel = Channel(
-        youtube_id=youtube_id,
-        title=snippet.get("title", "Unknown"),
-        description=snippet.get("description"),
-        subscriber_count=subscriber_count,
-        video_count=video_count,
-        view_count=view_count,
-        thumbnail_url=_pick_thumbnail(snippet),
-        country=snippet.get("country"),
-    )
-    session.add(channel)
-    await session.flush()
-    await session.refresh(channel)
-
-    # 写入初始指标历史
-    from datetime import timezone
-    now = datetime.now(timezone.utc)
-    if subscriber_count is not None:
-        session.add(MetricHistory(
-            channel_id=channel.id, metric_type=MetricType.SUBSCRIBER,
-            value=float(subscriber_count), recorded_at=now,
-        ))
-    if view_count is not None:
-        session.add(MetricHistory(
-            channel_id=channel.id, metric_type=MetricType.VIEW,
-            value=float(view_count), recorded_at=now,
-        ))
-    await session.flush()
-
-    return channel
+        await session.refresh(channel)
+        return channel
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Failed to import channel {youtube_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to fetch channel from YouTube.",
+        )
 
 
 @router.post("/backfill-thumbnails")
@@ -324,36 +240,15 @@ async def backfill_thumbnails(
         return {"scanned": 0, "updated": 0, "skipped": 0}
 
     from apps.api.services.youtube_api import DualTrackExtractor
-    extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
+    extractor = DualTrackExtractor(api_key=_ensure_youtube_api_key())
 
-    youtube_ids = [c.youtube_id for c in channels if c.youtube_id]
-    details = await extractor.get_channel_details(youtube_ids)
-    items = details.get("items", []) if isinstance(details, dict) else []
-    by_id: dict[str, dict] = {}
-    for item in items:
-        cid = (item.get("id") or "").strip()
-        if cid:
-            by_id[cid] = item
-
-    updated = 0
-    skipped = 0
-    now = datetime.utcnow()
-    for ch in channels:
-        item = by_id.get(ch.youtube_id)
-        if not item:
-            skipped += 1
-            continue
-        snippet = item.get("snippet", {})
-        thumb = _pick_thumbnail(snippet)
-        if _missing_thumbnail(thumb):
-            skipped += 1
-            continue
-        ch.thumbnail_url = thumb
-        ch.updated_at = now
-        updated += 1
-
-    await session.flush()
-    return {"scanned": len(channels), "updated": updated, "skipped": skipped}
+    try:
+        stats = await backfill_channel_thumbnails(session, extractor, channels)
+        await session.flush()
+        return {"scanned": len(channels), **stats}
+    except Exception as e:
+        logger.warning(f"Thumbnail backfill failed: {e}")
+        return {"scanned": len(channels), "updated": 0, "skipped": 0, "error": str(e)}
 
 
 @router.post("/bulk-discover", status_code=status.HTTP_201_CREATED)
@@ -369,7 +264,7 @@ async def bulk_discover(
         ["AI make money", "passive income", "ChatGPT business"]
     """
     from apps.api.services.youtube_api import DualTrackExtractor
-    extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
+    extractor = DualTrackExtractor(api_key=_ensure_youtube_api_key())
 
     imported = 0
     skipped = 0
@@ -387,58 +282,17 @@ async def bulk_discover(
                 if not youtube_id:
                     continue
 
-                # 检查是否已存在
-                existing = await session.execute(
-                    select(Channel).where(Channel.youtube_id == youtube_id)
-                )
-                if existing.scalar_one_or_none():
+                if await get_channel_by_youtube_id(session, youtube_id):
                     skipped += 1
                     continue
 
-                # 获取详情
-                detail = await extractor.get_channel_details([youtube_id])
-                detail_items = detail.get("items", [])
-                if not detail_items:
-                    failed += 1
-                    continue
-
-                d = detail_items[0]
-                stats = d.get("statistics", {})
-                s = d.get("snippet", {})
-
-                ch = Channel(
-                    youtube_id=youtube_id,
-                    title=s.get("title", snippet.get("title", "Unknown")),
-                    description=s.get("description", snippet.get("description")),
-                    subscriber_count=int(stats["subscriberCount"]) if stats.get("subscriberCount") else None,
-                    video_count=int(stats["videoCount"]) if stats.get("videoCount") else None,
-                    view_count=int(stats["viewCount"]) if stats.get("viewCount") else None,
-                    thumbnail_url=_pick_thumbnail(s) or _pick_thumbnail(snippet),
-                    country=s.get("country"),
-                )
-                session.add(ch)
-                await session.flush()
-
-                # metric_history
-                from datetime import timezone
-                now = datetime.now(timezone.utc)
-                if ch.subscriber_count is not None:
-                    session.add(MetricHistory(
-                        channel_id=ch.id, metric_type=MetricType.SUBSCRIBER,
-                        value=float(ch.subscriber_count), recorded_at=now,
-                    ))
-                if ch.view_count is not None:
-                    session.add(MetricHistory(
-                        channel_id=ch.id, metric_type=MetricType.VIEW,
-                        value=float(ch.view_count), recorded_at=now,
-                    ))
-
+                ch = await import_channel_from_youtube(session, extractor, youtube_id, snippet)
                 imported += 1
                 results.append({"youtube_id": youtube_id, "title": ch.title})
         except Exception as e:
-            logger = logging.getLogger("channels")
             logger.warning(f"Bulk discover failed for '{keyword}': {e}")
             failed += 1
+            await session.rollback()
 
     await session.commit()
     return {
@@ -456,7 +310,6 @@ async def repair_channel_thumbnails(
 ) -> dict:
     """补全历史空头像：为 thumbnail_url 为空的频道回查 YouTube 并更新."""
     from apps.api.services.youtube_api import DualTrackExtractor
-
     extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
 
     q = await session.execute(
@@ -467,36 +320,14 @@ async def repair_channel_thumbnails(
     )
     channels = q.scalars().all()
 
-    checked = 0
-    updated = 0
-    failed = 0
-
-    for ch in channels:
-        checked += 1
-        try:
-            detail = await extractor.get_channel_details([ch.youtube_id])
-            items = detail.get("items", [])
-            if not items:
-                failed += 1
-                continue
-            snippet = items[0].get("snippet", {})
-            thumb = _pick_thumbnail(snippet)
-            if thumb:
-                ch.thumbnail_url = thumb
-                updated += 1
-            else:
-                failed += 1
-        except Exception:
-            failed += 1
-
-    await session.flush()
-    await session.commit()
-
-    return {
-        "checked": checked,
-        "updated": updated,
-        "failed": failed,
-    }
+    try:
+        stats = await repair_channel_thumbnails(session, extractor, channels)
+        await session.flush()
+        await session.commit()
+        return stats
+    except Exception as e:
+        logger.warning(f"Thumbnail repair failed: {e}")
+        return {"updated": 0, "failed": len(channels), "error": str(e)}
 
 
 @router.get("/{channel_id}", response_model=ChannelRead)
@@ -569,7 +400,6 @@ async def get_channel_stats(
             detail=f"Channel {channel_id} not found",
         )
 
-    # 统计
     video_count = await session.scalar(
         select(func.count(Video.id)).where(Video.channel_id == channel_id)
     )

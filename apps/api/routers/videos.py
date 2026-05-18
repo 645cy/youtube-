@@ -1,17 +1,30 @@
 """
 视频管理 Router — CRUD + 高级筛选 + 批量导入
 路由前缀: /api/v1/videos
+
+职责边界:
+  - 本层只负责 HTTP 参数校验、错误响应 shaping、路由协调.
+  - 所有数据库查询条件和 YouTube 数据解析委托给 video_service.
+  - 见 CODE_INTELLIGENCE.md "Fat Router" 优化记录.
 """
 from __future__ import annotations
 
-from typing import Annotated
+import json
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, desc, func, select
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.api.schemas import VideoCreate, VideoList, VideoRead
 from apps.api.config import settings
+from apps.api.services.video_service import (
+    ALLOWED_VIDEO_SORT_FIELDS,
+    apply_video_sorting,
+    build_video_filters,
+    build_video_from_youtube_item,
+    import_videos_from_items,
+)
 from packages.db.schema import Channel, Video, get_db_session
 
 router = APIRouter(prefix="/videos", tags=["Videos"])
@@ -40,7 +53,10 @@ async def create_video(
             detail=f"Video {data.youtube_id} already exists",
         )
 
-    video = Video(**data.model_dump())
+    dump = data.model_dump()
+    if isinstance(dump.get("tags"), list):
+        dump["tags"] = json.dumps(dump["tags"], ensure_ascii=False)
+    video = Video(**dump)
     session.add(video)
     await session.flush()
     await session.refresh(video)
@@ -63,41 +79,32 @@ async def list_videos(
     sort_order: Annotated[str, Query(pattern="^(asc|desc)$")] = "desc",
 ) -> dict:
     """视频列表 (支持多维筛选和排序)."""
+    from sqlalchemy import and_
+
     query = select(Video)
-    count_query = select(func.count(Video.id))
+    count_query = select(Video.id)  # 使用 select().subquery() 模式避免 func.count 问题
 
-    conditions = []
-    if channel_id:
-        conditions.append(Video.channel_id == channel_id)
-    if is_short is not None:
-        conditions.append(Video.is_short == is_short)
-    if category_id:
-        conditions.append(Video.category_id == category_id)
-    if language:
-        conditions.append(Video.language == language)
-    if min_views is not None:
-        conditions.append(Video.view_count >= min_views)
-    if min_duration is not None:
-        conditions.append(Video.duration >= min_duration)
-    if max_duration is not None:
-        conditions.append(Video.duration <= max_duration)
-
+    conditions = build_video_filters(
+        channel_id, is_short, category_id, language, min_views, min_duration, max_duration
+    )
     if conditions:
         filter_condition = and_(*conditions)
         query = query.where(filter_condition)
-        count_query = count_query.where(filter_condition)
+        # count_query 也需要同样条件，但使用 func.count 更简洁
 
-    # 排序
-    sort_col = getattr(Video, sort_by, Video.published_at)
-    if sort_order == "desc":
-        query = query.order_by(desc(sort_col))
-    else:
-        query = query.order_by(sort_col)
-
-    query = query.offset(offset).limit(limit)
+    try:
+        query = apply_video_sorting(query, sort_by, sort_order).offset(offset).limit(limit)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     result = await session.execute(query)
-    count_result = await session.execute(count_query)
+
+    # 独立计数查询
+    from sqlalchemy import func
+    count_base = select(func.count(Video.id))
+    if conditions:
+        count_base = count_base.where(filter_condition)
+    count_result = await session.execute(count_base)
 
     return {
         "items": result.scalars().all(),
@@ -125,64 +132,26 @@ async def get_video(
 
 @router.post("/import-batch", status_code=status.HTTP_201_CREATED)
 async def import_videos_batch(
-    youtube_ids: list[str],
-    channel_id: int,
+    youtube_ids: Annotated[list[str], Body()],
+    channel_id: Annotated[int, Query(ge=1)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> dict:
     """批量导入视频 (通过 YouTube API 或 yt-dlp)."""
     from apps.api.services.youtube_api import DualTrackExtractor
     extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
-    result = await extractor.get_video_details(youtube_ids)
+    try:
+        result = await extractor.get_video_details(youtube_ids)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Failed to fetch video details: {e}",
+        )
 
     items = result.get("items", [])
-    imported = 0
-    skipped = 0
+    stats = await import_videos_from_items(session, items, channel_id)
 
-    for item in items:
-        yid = item.get("id", "")
-        # 检查是否已存在
-        existing = await session.execute(
-            select(Video).where(Video.youtube_id == yid)
-        )
-        if existing.scalar_one_or_none():
-            skipped += 1
-            continue
-
-        snippet = item.get("snippet", {})
-        stats = item.get("statistics", {})
-        cd = item.get("contentDetails", {})
-        duration = cd.get("duration")
-        duration_sec = None
-        if duration:
-            import re
-            m = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration)
-            if m:
-                duration_sec = (int(m.group(1) or 0) * 3600 +
-                               int(m.group(2) or 0) * 60 +
-                               int(m.group(3) or 0))
-
-        video = Video(
-            youtube_id=yid,
-            channel_id=channel_id,
-            title=snippet.get("title", "Unknown"),
-            description=snippet.get("description"),
-            thumbnail_url=snippet.get("thumbnails", {}).get("high", {}).get("url"),
-            published_at=None,
-            duration=duration_sec,
-            view_count=int(stats.get("viewCount", 0)) if stats.get("viewCount") else None,
-            like_count=int(stats.get("likeCount", 0)) if stats.get("likeCount") else None,
-            comment_count=int(stats.get("commentCount", 0)) if stats.get("commentCount") else None,
-            tags=json.dumps(snippet.get("tags", [])) if snippet.get("tags") else None,
-            category_id=snippet.get("categoryId"),
-            is_short=duration_sec is not None and duration_sec <= 60,
-        )
-        session.add(video)
-        imported += 1
-
-    await session.flush()
     return {
-        "imported": imported,
-        "skipped": skipped,
+        **stats,
         "total": len(youtube_ids),
         "source": result.get("source", "api"),
     }

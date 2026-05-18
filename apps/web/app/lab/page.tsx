@@ -23,6 +23,12 @@ import { useOCPStore, type OCPPath } from "@/lib/store"
 import { labApi } from "@/lib/api"
 import { mapPathToOCPPath } from "@/lib/mappers"
 import { toastInfo, toastError } from "@/lib/toast"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useGSAPReveal } from "@/hooks/useGSAPReveal"
+import { HeroFooter } from "@/components/HeroFooter"
+import { SectionHeading } from "@/components/SectionHeading"
 
 // =============================================================================
 // 步骤枚举
@@ -34,6 +40,9 @@ export default function LabPage() {
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [generating, setGenerating] = useState(false)
   const [allPathsLoading, setAllPathsLoading] = useState(false)
+
+  const titleRef = useGSAPReveal<HTMLDivElement>({ y: 24, opacity: 0, duration: 0.5, ease: "power3.out" })
+  const stepRef = useGSAPReveal<HTMLDivElement>({ y: 24, opacity: 0, duration: 0.5, delay: 0.1, ease: "power3.out" })
 
   const {
     recommendedPaths,
@@ -94,6 +103,7 @@ export default function LabPage() {
         }
       } catch (e) {
         setRecommendedPaths([])
+        toastError("生成推荐失败，请检查网络后重试")
       } finally {
         setGenerating(false)
         setCurrentStep(2)
@@ -150,181 +160,73 @@ export default function LabPage() {
   const selectedPath = recommendedPaths.find((p) => p.id === selectedPathId)
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* 页面标题 */}
-      <div className="flex items-center gap-4">
-        {currentStep > 1 && (
-          <Button variant="ghost" size="sm" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            返回
-          </Button>
-        )}
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <FlaskConical className="h-6 w-6 text-primary" />
-            OCP 变现实验室
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            基于 AI 分析，为你规划最佳的内容变现路径
-          </p>
+    <div className="space-y-8 max-w-6xl mx-auto">
+      <div ref={titleRef} className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] items-stretch">
+        <div className="relative overflow-hidden border paper-card page-corner p-6 md:p-8 min-h-[220px] flex flex-col justify-between">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(184,151,92,0.14),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.42),rgba(255,255,255,0.02))] dark:bg-[radial-gradient(circle_at_top_left,rgba(184,151,92,0.16),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />
+          <div className="relative z-10 space-y-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">变现实验室</span>
+              <span className="text-xs text-muted-foreground">画像 · 推荐 · 执行</span>
+            </div>
+            <h1 className="hero-title max-w-xl flex items-center gap-3"><FlaskConical className="h-6 w-6 md:h-7 md:w-7 text-primary shrink-0" />OCP 变现实验室</h1>
+            <p className="page-body max-w-lg">基于画像与数据信号匹配变现路径，并导出可执行步骤与工具清单。</p>
+          </div>
+          <HeroFooter segment="变现实验室" />
+        </div>
+
+        <div className="flex flex-col justify-between gap-4 p-5 border paper-card page-corner paper-hover-lift depth-hover bg-muted/20">
+          <div className="space-y-2">
+            <p className="page-meta">步骤导航</p>
+            {currentStep > 1 && <Button variant="ghost" size="sm" onClick={handleBack} className="px-0 w-fit"><ArrowLeft className="h-4 w-4 mr-1" />返回上一页</Button>}
+            <p className="page-body text-sm">先填写画像，再阅读推荐，最后展开工作流执行。</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleLoadAllPaths} disabled={allPathsLoading} className="w-fit">{allPathsLoading ? "加载中..." : "浏览全部路径"}</Button>
         </div>
       </div>
 
-      {/* 步骤指示器 */}
-      <div className="flex items-center gap-4 px-4 py-3 rounded-lg bg-card border">
-        <StepIndicator step={1} current={currentStep} label="填写画像" />
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        <StepIndicator step={2} current={currentStep} label="查看推荐" />
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        <StepIndicator step={3} current={currentStep} label="执行工作流" />
-      </div>
+      <div ref={stepRef} className="flex items-center gap-4 px-4 py-3 rounded-lg bg-card border paper-card page-corner depth-hover"><StepIndicator step={1} current={currentStep} label="填写画像" /><ChevronRight className="h-4 w-4 text-muted-foreground" /><StepIndicator step={2} current={currentStep} label="查看推荐" /><ChevronRight className="h-4 w-4 text-muted-foreground" /><StepIndicator step={3} current={currentStep} label="执行工作流" /></div>
 
-      {/* 内容区 */}
       <AnimatePresence mode="wait">
         {currentStep === 1 && (
-          <motion.div
-            key="step1"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="p-6">
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-2">
-                  让我们了解你
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  填写以下信息，AI 将为你匹配最适合的变现路径
-                </p>
+          <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
+            <Card className="p-6 paper-card page-corner bg-background/80">
+              <div className="mb-6 space-y-2">
+                <SectionHeading label="创作者画像" className="mb-4" />
+                <p className="page-body text-sm max-w-xl">填写以下信息，系统将匹配变现路径并生成可执行的方案页。</p>
               </div>
-              <UserProfileForm
-                onSubmit={handleProfileSubmit}
-                isLoading={generating}
-              />
+              <UserProfileForm onSubmit={handleProfileSubmit} isLoading={generating} />
             </Card>
           </motion.div>
         )}
 
         {currentStep === 2 && (
-          <motion.div
-            key="step2"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLoadAllPaths}
-                disabled={allPathsLoading}
-              >
-                {allPathsLoading ? "加载中..." : "浏览全部路径"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setCurrentStep(1)}
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                重新填写画像
-              </Button>
-            </div>
-            {recommendedPaths.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Target className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                <p className="text-muted-foreground">未生成推荐方案</p>
-                <p className="text-xs mt-1">请检查网络连接后重试，或浏览全部路径</p>
-              </div>
-            ) : (
-              <PathRecommendation
-                paths={recommendedPaths}
-                onSelectPath={handleSelectPath}
-              />
-            )}
+          <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
+            <div className="flex items-center gap-2 mb-4"><Button variant="outline" size="sm" onClick={handleLoadAllPaths} disabled={allPathsLoading} className="font-sans tracking-wide">{allPathsLoading ? "加载中..." : "浏览全部路径"}</Button><Button variant="ghost" size="sm" onClick={() => setCurrentStep(1)} className="font-sans tracking-wide"><ArrowLeft className="h-4 w-4 mr-1" />重新填写画像</Button></div>
+            {recommendedPaths.length === 0 ? (<div className="text-center py-12 text-muted-foreground paper-card page-corner border bg-muted/15"><Target className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" /><p className="page-body text-foreground">未生成推荐方案</p><p className="text-xs mt-1 page-body">请检查网络连接后重试，或浏览全部路径</p></div>) : (<PathRecommendation paths={recommendedPaths} onSelectPath={handleSelectPath} />)}
           </motion.div>
         )}
 
         {currentStep === 3 && selectedPath && (
-          <motion.div
-            key="step3"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <WorkflowDetail
-              steps={selectedPath.steps}
-              pathName={selectedPath.name}
-              onStepsChange={updateSelectedPathSteps}
-              onExport={() => {
-                if (!selectedPath) return
-                const stepLines = (selectedPath.steps || [])
-                  .map((step) => {
-                    const substeps = (step.substeps || [])
-                      .map((substep) => `   - ${substep.title}: ${substep.detail}（约 ${substep.estimatedHours} 小时）`)
-                      .join("\n")
-                    const tools = step.tools?.length ? `\n   工具: ${step.tools.join("、")}` : ""
-                    const deliverables = step.deliverables?.length
-                      ? `\n   交付物: ${step.deliverables.join("、")}`
-                      : ""
-                    return `${step.order}. ${step.title}\n   ${step.description}${tools}${deliverables}${substeps ? `\n${substeps}` : ""}`
-                  })
-                  .join("\n\n")
-
-                const content = `# ${selectedPath.name} - 变现路径方案
-
-## 匹配分数
-${selectedPath.matchScore}/100
-
-## 路径说明
-${selectedPath.description || "暂无说明"}
-
-## 预估数据
-- 月收入区间: ${selectedPath.estimatedRevenue || "未知"}
-- 执行周期: ${selectedPath.timeline || "未知"}
-- 难度: ${selectedPath.difficulty || "未知"}
-
-## 推荐原因
-${(selectedPath.matchReasons?.length ? selectedPath.matchReasons : ["该路径与当前画像匹配度较高"]).map((reason) => `- ${reason}`).join("\n")}
-
-## 执行步骤
-${stepLines || "暂无执行步骤"}
-
-## 推荐工具
-${(selectedPath.tools || []).map((tool) => `- ${tool}`).join("\n") || "暂无推荐工具"}
-
-## 优缺点
-优势:
-${(selectedPath.pros || []).map((p: string) => `- ${p}`).join("\n") || "- 暂无"}
-
-劣势:
-${(selectedPath.cons || []).map((c: string) => `- ${c}`).join("\n") || "- 暂无"}
-
----
-生成时间: ${new Date().toLocaleString()}
-TubeFactory OCP Lab
-`
-                const blob = new Blob([content], { type: "text/markdown" })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement("a")
-                a.href = url
-                a.download = `${selectedPath.name.replace(/\s+/g, "_")}_方案.md`
-                a.click()
-                URL.revokeObjectURL(url)
-                toastInfo("方案已导出为 Markdown 文件")
-              }}
-              onStartExecution={() => {
-                const nextSteps = selectedPath.steps.map((step, index) => ({
-                  ...step,
-                  status: index === 0 ? "active" as const : "pending" as const,
-                }))
-                updateSelectedPathSteps(nextSteps)
-                toastInfo("已进入执行模式，点击步骤图标可标记完成，进度会保存在本机")
-              }}
-            />
+          <motion.div key="step3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
+            <WorkflowDetail steps={selectedPath.steps} pathName={selectedPath.name} onStepsChange={updateSelectedPathSteps} onExport={() => {
+              if (!selectedPath) return
+              const stepLines = (selectedPath.steps || []).map((step) => {
+                const substeps = (step.substeps || []).map((substep) => `   - ${substep.title}: ${substep.detail}（约 ${substep.estimatedHours} 小时）`).join("\n")
+                const tools = step.tools?.length ? `\n   工具: ${step.tools.join("、")}` : ""
+                const deliverables = step.deliverables?.length ? `\n   交付物: ${step.deliverables.join("、")}` : ""
+                return `${step.order}. ${step.title}\n   ${step.description}${tools}${deliverables}${substeps ? `\n${substeps}` : ""}`
+              }).join("\n\n")
+              const content = `# ${selectedPath.name} - 变现路径方案\n\n## 匹配分数\n${selectedPath.matchScore}/100\n\n## 路径说明\n${selectedPath.description || "暂无说明"}\n\n## 预估数据\n- 月收入区间: ${selectedPath.estimatedRevenue || "未知"}\n- 执行周期: ${selectedPath.timeline || "未知"}\n- 难度: ${selectedPath.difficulty || "未知"}\n\n## 推荐原因\n${(selectedPath.matchReasons?.length ? selectedPath.matchReasons : ["该路径与当前画像匹配度较高"]).map((reason) => `- ${reason}`).join("\n")}\n\n## 执行步骤\n${stepLines || "暂无执行步骤"}\n\n## 推荐工具\n${(selectedPath.tools || []).map((tool) => `- ${tool}`).join("\n") || "暂无推荐工具"}\n\n## 优缺点\n优势:\n${(selectedPath.pros || []).map((p: string) => `- ${p}`).join("\n") || "- 暂无"}\n\n劣势:\n${(selectedPath.cons || []).map((c: string) => `- ${c}`).join("\n") || "- 暂无"}\n\n---\n生成时间: ${new Date().toLocaleString()}\nTubeFactory OCP Lab\n`
+              const blob = new Blob([content], { type: "text/markdown" })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement("a")
+              a.href = url
+              a.download = `${selectedPath.name?.replace(/\s+/g, "_") ?? "untitled"}_方案.md`
+              a.click()
+              URL.revokeObjectURL(url)
+              toastInfo("方案已导出为 Markdown 文件")
+            }} onStartExecution={() => { const nextSteps = selectedPath.steps.map((step, index) => ({ ...step, status: index === 0 ? "active" as const : "pending" as const })); updateSelectedPathSteps(nextSteps); toastInfo("已进入执行模式，点击步骤图标可标记完成，进度会保存在本机") }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -349,7 +251,7 @@ function StepIndicator({
     <div className="flex items-center gap-2">
       <span
         className={cn(
-          "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
+          "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors font-serif",
           isActive && "bg-primary text-primary-foreground",
           isCompleted && "bg-emerald-500 text-white",
           !isActive && !isCompleted && "bg-muted text-muted-foreground"
@@ -359,7 +261,7 @@ function StepIndicator({
       </span>
       <span
         className={cn(
-          "text-sm transition-colors",
+          "text-sm transition-colors font-serif tracking-wide",
           isActive ? "text-foreground font-medium" : "text-muted-foreground"
         )}
       >
@@ -369,7 +271,3 @@ function StepIndicator({
   )
 }
 
-// 需要引入的组件和类型
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"

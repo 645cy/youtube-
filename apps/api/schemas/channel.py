@@ -36,6 +36,13 @@ class ChannelRead(BaseModel):
     country: Optional[str] = None
     language: Optional[str] = None
     niche: Optional[str] = None
+    # ── 频道发现字段 ──
+    channel_created_at: Optional[datetime] = None
+    avg_views_per_video: Optional[int] = None
+    discovery_score: Optional[float] = None
+    discovery_keyword: Optional[str] = None
+    discovered_at: Optional[datetime] = None
+    last_stats_updated: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 

@@ -23,7 +23,9 @@ class MonetizationSignalDetector:
     UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "aff_id", "ref", "tag"]
     COUPON_PATTERNS = [
         r"(?:code|coupon|promo)\s*[:：]\s*([A-Z0-9]{4,15})",
-        r'(?:use|enter)\s+["\']?([A-Z0-9]{4,15})["\']?',
+        r'(?:use|enter)\s+(?:code|coupon|promo)\s+["\']?([A-Z0-9]{4,15})["\']?',
+        # CRG: Avoid treating the literal word "code" as the coupon in "use code SAVE20".
+        r'(?:use|enter)\s+(?!code\b|coupon\b|promo\b)["\']?([A-Z0-9]{4,15})["\']?',
     ]
     SPONSOR_PHRASES = ["sponsored by", "paid promotion", "partnered with",
                        "thanks to", "this video is sponsored", "#sponsored", "#ad",

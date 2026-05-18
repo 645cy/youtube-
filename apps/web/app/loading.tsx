@@ -1,52 +1,44 @@
-/**
- * 全局 Loading 骨架屏
- * 页面切换时展示，提升感知性能
- */
+"use client"
 
-import { Skeleton, StatSkeleton, ChartSkeleton } from "@/components/ui/skeleton"
+import { Sparkles } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
     <div className="space-y-6">
-      {/* 页面标题骨架 */}
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-9 w-28" />
+      {/* CRG: Loading mirrors the redesigned dashboard layout so route transitions do not feel like a different app. */}
+      <div className="lux-card overflow-hidden p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/12 text-primary">
+            <Sparkles className="h-5 w-5 animate-pulse" />
+          </span>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-8 w-72 max-w-[70vw]" />
+          </div>
+        </div>
       </div>
-
-      {/* KPI 骨架 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatSkeleton />
-        <StatSkeleton />
-        <StatSkeleton />
-        <StatSkeleton />
-      </div>
-
-      {/* 搜索栏骨架 */}
-      <Skeleton className="h-11 w-full max-w-2xl" />
-
-      {/* 卡片网格骨架 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className="rounded-xl border bg-card overflow-hidden space-y-3"
-          >
-            <Skeleton className="h-32 w-full rounded-none" />
-            <div className="p-3 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-full" />
-              <div className="flex gap-2">
-                <Skeleton className="h-3 w-16" />
-                <Skeleton className="h-3 w-16" />
-              </div>
-            </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="lux-card space-y-4 p-5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-9 w-28" />
+            <Skeleton className="h-4 w-40" />
           </div>
         ))}
       </div>
-
-      {/* 图表骨架 */}
-      <ChartSkeleton />
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="lux-card space-y-4 p-5">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-[320px] w-full" />
+        </div>
+        <div className="lux-card space-y-4 p-5">
+          <Skeleton className="h-5 w-32" />
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

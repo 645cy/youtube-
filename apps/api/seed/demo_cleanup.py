@@ -82,7 +82,8 @@ async def main() -> int:
     backup_path = Path(args.backup)
     backup_path.parent.mkdir(parents=True, exist_ok=True)
     backup_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    # CRG: Keep CLI output without using production print calls.
+    sys.stdout.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
     return 0
 
 

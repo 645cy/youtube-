@@ -1,10 +1,22 @@
 """
 SQLAlchemy 2.0 完整模型定义 — 五表关联架构
-- Channel: 频道信息
-- Video: 视频信息 (FK->Channel)
-- MonitorJob: 监控任务 (FK->Channel)  
-- AnalysisLog: 分析日志 (FK->Video)
-- MetricHistory: 指标历史 (FK->Channel)
+
+表清单:
+  - `Channel`: 频道信息
+  - `Video`: 视频信息 (FK->Channel)
+  - `MonitorJob`: 监控任务 (FK->Channel)
+  - `AnalysisLog`: 分析日志 (FK->Video)
+  - `MetricHistory`: 指标历史 (FK->Channel)
+
+被以下模块直接使用:
+  - `apps.api.routers.channels`    — 频道 CRUD + 统计
+  - `apps.api.routers.videos`      — 视频 CRUD + 筛选
+  - `apps.api.routers.analysis`    — 分析日志写入
+  - `apps.api.routers.radar`       — 监控任务调度
+  - `apps.api.services.channel_service` — 频道导入/缩略图回填
+  - `apps.api.services.analysis.*` — 分析算法结果持久化
+  - `apps.api.seed.seed_db`        — 开发环境数据种子
+  - `apps.api.services.scheduler`  — 调度引擎读写
 
 设计决策:
   - 使用 AsyncAttrs + DeclarativeBase 支持异步 ORM
@@ -14,8 +26,9 @@ SQLAlchemy 2.0 完整模型定义 — 五表关联架构
 """
 from __future__ import annotations
 
+import os
+
 import enum
-import json
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, List, Optional
 
@@ -30,7 +43,6 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    select,
 )
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -123,6 +135,26 @@ class Channel(Base):
     country: Mapped[Optional[str]] = mapped_column(String(2), nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(5), nullable=True)
     niche: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+
+    # ── 频道发现字段 (Channel Discovery) ──
+    channel_created_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, comment="YouTube 频道创建时间"
+    )
+    avg_views_per_video: Mapped[Optional[int]] = mapped_column(
+        BigInteger, nullable=True, comment="频道平均播放量 (总播放/视频数)"
+    )
+    discovery_score: Mapped[Optional[float]] = mapped_column(
+        Float, nullable=True, comment="潜力评分 0-100"
+    )
+    discovery_keyword: Mapped[Optional[str]] = mapped_column(
+        String(200), nullable=True, comment="发现该频道的关键词"
+    )
+    discovered_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, comment="首次发现时间"
+    )
+    last_stats_updated: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, comment="统计信息最后更新时间"
+    )
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
     updated_at: Mapped[datetime] = mapped_column(
@@ -340,6 +372,85 @@ class MetricHistory(Base):
     )
 
 
+# ── 频道发现结果表 ──
+
+class ChannelDiscoveryResult(Base):
+    """单次发现任务的详细结果快照.
+
+    用于审计和回溯某次任务的具体发现。
+    主要数据仍由 Channel 表维护，此表做 append-only 记录。
+    """
+    __tablename__ = "channel_discovery_results"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    crawler_task_run_id: Mapped[int] = mapped_column(
+        ForeignKey("crawler_task_runs.id", ondelete="CASCADE"), index=True
+    )
+    channel_id: Mapped[int] = mapped_column(
+        ForeignKey("channels.id", ondelete="CASCADE"), index=True
+    )
+    keyword: Mapped[str] = mapped_column(String(200))
+    viral_score: Mapped[float] = mapped_column(Float)
+    rank: Mapped[int] = mapped_column(Integer, default=0)  # 本次任务内排名
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
+# ── 内容项目表 ──
+
+class ContentProjectStatus(str, enum.Enum):
+    DRAFT = "draft"
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+
+
+class ContentProject(Base):
+    """内容项目表 — 串联 Crawler → Factory → Lab 工作流.
+
+    一个项目对应一次完整的内容创作流程：
+    从爬虫抓取数据 → 生成脚本/分镜 → 分析优化 → 变现路径规划。
+    """
+    __tablename__ = "content_projects"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default=ContentProjectStatus.DRAFT)
+
+    # 来源 — 从哪次爬虫任务/执行创建
+    source_crawler_task_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("crawler_tasks.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    source_run_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("crawler_task_runs.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+
+    # Factory 产出
+    script_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    storyboard_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Lab 分析结果
+    analysis_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    monetization_path_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=now_utc, onupdate=now_utc
+    )
+
+    # 关系
+    source_task: Mapped[Optional["CrawlerTask"]] = relationship(
+        "CrawlerTask", foreign_keys=[source_crawler_task_id]
+    )
+    source_run: Mapped[Optional["CrawlerTaskRun"]] = relationship(
+        "CrawlerTaskRun", foreign_keys=[source_run_id]
+    )
+
+    __table_args__ = (
+        Index("ix_projects_status_updated", "status", "updated_at"),
+    )
+
+
 # ── 数据库引擎与会话管理 ──
 
 _engine = None
@@ -350,7 +461,7 @@ def get_engine(database_url: str | None = None, echo: bool = False) -> Any:
     """获取或创建异步数据库引擎 (单例)."""
     global _engine
     if _engine is None:
-        url = database_url or "sqlite+aiosqlite:///./youtube_monitor.db"
+        url = database_url or os.environ.get("DATABASE_URL") or "sqlite+aiosqlite:///./data/tubefactory.db"
         _engine = create_async_engine(url, echo=echo, pool_pre_ping=True)
     return _engine
 
@@ -368,7 +479,11 @@ def get_sessionmaker() -> Any:
     return _SessionLocal
 
 
-async def init_db(database_url: str | None = None, echo: bool = False) -> None:
+async def init_db(
+    database_url: str | None = None,
+    echo: bool = False,
+    create_missing_tables: bool = True,
+) -> None:
     """初始化数据库: WAL 模式 + 建表."""
     engine = get_engine(database_url, echo)
     async with engine.begin() as conn:
@@ -378,8 +493,9 @@ async def init_db(database_url: str | None = None, echo: bool = False) -> None:
         await conn.exec_driver_sql("PRAGMA foreign_keys=ON")
         await conn.exec_driver_sql("PRAGMA temp_store=MEMORY")
         await conn.exec_driver_sql("PRAGMA cache_size=-64000")
-        # 创建所有表
-        await conn.run_sync(Base.metadata.create_all)
+        if create_missing_tables:
+            # CRG: Keep local/dev startup convenient while production uses Alembic migrations.
+            await conn.run_sync(Base.metadata.create_all)
 
 
 async def close_db() -> None:

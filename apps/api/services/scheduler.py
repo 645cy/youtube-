@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -23,12 +24,42 @@ from sqlalchemy import select
 
 
 from apps.api.config import settings
+from apps.api.services.crawler_executor import run_due_crawler_tasks
 from packages.db.schema import Channel, MetricHistory, MetricType, Video, get_sessionmaker
 
 logger = logging.getLogger("scheduler")
 
 # 全局调度器实例
 _scheduler: AsyncIOScheduler | None = None
+
+
+def _uploads_playlist_id(youtube_id: str) -> str | None:
+    # CRG: Keep UC-channel playlist derivation in one place for scheduler and tests.
+    return f"UU{youtube_id[2:]}" if youtube_id.startswith("UC") else None
+
+
+def _upload_item_from_ytdlp_meta(meta: Any) -> dict[str, Any]:
+    # CRG: Normalize yt-dlp fallback output to the same shape as playlistItems.
+    return {
+        "snippet": {
+            "resourceId": {"videoId": meta.video_id},
+            "title": meta.title,
+            "thumbnails": {"high": {"url": meta.thumbnail_url or ""}},
+        }
+    }
+
+
+def _video_payload_from_upload_item(item: dict[str, Any]) -> dict[str, Any] | None:
+    snippet = item.get("snippet", {})
+    video_id = snippet.get("resourceId", {}).get("videoId", "")
+    if not video_id:
+        return None
+    # CRG: Keep upload-item parsing reusable before duplicate checks create Video rows.
+    return {
+        "youtube_id": video_id,
+        "title": snippet.get("title", "Unknown"),
+        "thumbnail_url": snippet.get("thumbnails", {}).get("high", {}).get("url"),
+    }
 
 
 def get_scheduler() -> AsyncIOScheduler:
@@ -53,25 +84,31 @@ async def update_all_channel_stats() -> None:
             from apps.api.services.youtube_api import DualTrackExtractor
             extractor = DualTrackExtractor(api_key=settings.YOUTUBE_API_KEY)
 
+            # CRG: Batch API calls (50 IDs/call) to avoid N+1 API storm.
+            BATCH_SIZE = 50
             updated = 0
-            for channel in channels:
+            for i in range(0, len(channels), BATCH_SIZE):
+                batch = channels[i:i + BATCH_SIZE]
                 try:
-                    detail = await extractor.get_channel_details([channel.youtube_id])
+                    detail = await extractor.get_channel_details([c.youtube_id for c in batch])
                     items = detail.get("items", [])
-                    if not items:
-                        continue
-                    stats = items[0].get("statistics", {})
-                    subscriber_count = int(stats["subscriberCount"]) if stats.get("subscriberCount") else None
-                    video_count = int(stats["videoCount"]) if stats.get("videoCount") else None
-                    view_count = int(stats["viewCount"]) if stats.get("viewCount") else None
+                    stats_map = {item["id"]: item.get("statistics", {}) for item in items}
 
-                    channel.subscriber_count = subscriber_count
-                    channel.video_count = video_count
-                    channel.view_count = view_count
-                    channel.updated_at = datetime.now(timezone.utc)
-                    updated += 1
+                    for channel in batch:
+                        stats = stats_map.get(channel.youtube_id, {})
+                        if not stats:
+                            continue
+                        subscriber_count = int(stats["subscriberCount"]) if stats.get("subscriberCount") else None
+                        video_count = int(stats["videoCount"]) if stats.get("videoCount") else None
+                        view_count = int(stats["viewCount"]) if stats.get("viewCount") else None
+
+                        channel.subscriber_count = subscriber_count
+                        channel.video_count = video_count
+                        channel.view_count = view_count
+                        channel.updated_at = datetime.now(timezone.utc)
+                        updated += 1
                 except Exception as e:
-                    logger.warning(f"Failed to update channel {channel.youtube_id}: {e}")
+                    logger.warning(f"Failed to update batch starting with {batch[0].youtube_id}: {e}")
 
             await session.commit()
             logger.info(f"Updated {updated}/{len(channels)} channels")
@@ -86,13 +123,7 @@ async def detect_new_videos() -> None:
     sessionmaker = get_sessionmaker()
     async with sessionmaker() as session:
         try:
-            from packages.db.schema import MonitorJob
-            result = await session.execute(
-                select(MonitorJob, Channel)
-                .join(Channel, MonitorJob.channel_id == Channel.id)
-                .where(MonitorJob.status == "active")
-            )
-            jobs = result.all()
+            jobs = await _load_active_monitor_jobs(session)
             if not jobs:
                 logger.info("No active monitor jobs")
                 return
@@ -103,57 +134,10 @@ async def detect_new_videos() -> None:
             imported = 0
             for job, channel in jobs:
                 try:
-                    # 通过双轨提取器获取频道最新视频
-                    # 先尝试 API playlist_items，失败则降级到 yt-dlp
-                    has_quota = await extractor._quota.check_budget(needed=1)
-                    items = []
-                    if has_quota and extractor._api._is_available():
-                        uploads_playlist_id = (
-                            f"UU{channel.youtube_id[2:]}"
-                            if channel.youtube_id.startswith("UC")
-                            else None
-                        )
-                        if uploads_playlist_id:
-                            api_result = await extractor._api.playlist_items_list(uploads_playlist_id, max_results=10)
-                            items = api_result.get("items", [])
-
-                    if not items:
-                        # yt-dlp 降级: 抓取频道 uploads 页面
-                        ytdlp_result = await extractor._yt_dlp.extract_channel_uploads(
-                            f"https://www.youtube.com/channel/{channel.youtube_id}", max_videos=10
-                        )
-                        for meta in ytdlp_result:
-                            items.append({
-                                "snippet": {
-                                    "resourceId": {"videoId": meta.video_id},
-                                    "title": meta.title,
-                                    "thumbnails": {"high": {"url": meta.thumbnail_url or ""}},
-                                }
-                            })
-
-                    for item in items:
-                        snippet = item.get("snippet", {})
-                        video_id = snippet.get("resourceId", {}).get("videoId", "")
-                        if not video_id:
-                            continue
-
-                        existing = await session.execute(
-                            select(Video).where(Video.youtube_id == video_id)
-                        )
-                        if existing.scalar_one_or_none():
-                            continue
-
-                        video = Video(
-                            youtube_id=video_id,
-                            channel_id=channel.id,
-                            title=snippet.get("title", "Unknown"),
-                            thumbnail_url=snippet.get("thumbnails", {}).get("high", {}).get("url"),
-                            published_at=None,
-                        )
-                        session.add(video)
-                        imported += 1
-
+                    items = await _fetch_latest_upload_items(extractor, channel)
+                    imported += await _insert_new_videos(session, channel, items)
                     job.last_run_at = datetime.now(timezone.utc)
+                    # CRG: The scheduled job now delegates fetch and insert details to focused helpers.
                 except Exception as e:
                     logger.warning(f"Failed to detect new videos for {channel.title}: {e}")
 
@@ -162,6 +146,48 @@ async def detect_new_videos() -> None:
         except Exception as e:
             await session.rollback()
             logger.error(f"New video detection failed: {e}")
+
+
+async def _load_active_monitor_jobs(session: Any) -> list[Any]:
+    from packages.db.schema import MonitorJob
+    result = await session.execute(
+        select(MonitorJob, Channel)
+        .join(Channel, MonitorJob.channel_id == Channel.id)
+        .where(MonitorJob.status == "active")
+    )
+    # CRG: Keep monitor-job query separate from external fetch and insert logic.
+    return list(result.all())
+
+
+async def _fetch_latest_upload_items(extractor: Any, channel: Channel) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    has_quota = await extractor._quota.check_budget(needed=1)
+    playlist_id = _uploads_playlist_id(channel.youtube_id)
+    if has_quota and extractor._api._is_available() and playlist_id:
+        api_result = await extractor._api.playlist_items_list(playlist_id, max_results=10)
+        items = api_result.get("items", [])
+    if items:
+        return items
+
+    ytdlp_result = await extractor._yt_dlp.extract_channel_uploads(
+        f"https://www.youtube.com/channel/{channel.youtube_id}", max_videos=10
+    )
+    # CRG: yt-dlp fallback feeds the same downstream item parser as YouTube API results.
+    return [_upload_item_from_ytdlp_meta(meta) for meta in ytdlp_result]
+
+
+async def _insert_new_videos(session: Any, channel: Channel, items: list[dict[str, Any]]) -> int:
+    imported = 0
+    for item in items:
+        payload = _video_payload_from_upload_item(item)
+        if not payload:
+            continue
+        existing = await session.execute(select(Video).where(Video.youtube_id == payload["youtube_id"]))
+        if existing.scalar_one_or_none():
+            continue
+        session.add(Video(channel_id=channel.id, published_at=None, **payload))
+        imported += 1
+    return imported
 
 
 async def scrape_video_comments() -> None:
@@ -260,6 +286,8 @@ def init_scheduler() -> AsyncIOScheduler:
         id="update_channel_stats",
         name="Update channel statistics",
         replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=300,
     )
 
     # 新视频检测: 每 4 小时
@@ -269,6 +297,8 @@ def init_scheduler() -> AsyncIOScheduler:
         id="detect_new_videos",
         name="Detect new videos",
         replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=300,
     )
 
     # 指标快照: 每 12 小时
@@ -278,6 +308,8 @@ def init_scheduler() -> AsyncIOScheduler:
         id="snapshot_metrics",
         name="Snapshot metrics history",
         replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=300,
     )
 
     # 评论抓取: 每 8 小时
@@ -287,10 +319,23 @@ def init_scheduler() -> AsyncIOScheduler:
         id="scrape_comments",
         name="Scrape video comments",
         replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=300,
+    )
+
+    # CrawlerTask 自动轮询: 每 10 分钟检查一次到期任务
+    scheduler.add_job(
+        run_due_crawler_tasks,
+        trigger=IntervalTrigger(minutes=10),
+        id="run_due_crawler_tasks",
+        name="Run due crawler tasks",
+        replace_existing=True,
+        max_instances=1,
+        misfire_grace_time=300,
     )
 
     scheduler.start()
-    logger.info("Scheduler started with 4 jobs: stats(6h), videos(4h), metrics(12h), comments(8h)")
+    logger.info("Scheduler started with 5 jobs: stats(6h), videos(4h), metrics(12h), comments(8h), crawler_tasks(10m)")
     return scheduler
 
 

@@ -1,155 +1,189 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { Canvas, useFrame } from "@react-three/fiber"
+import { useTheme } from "next-themes"
+import * as THREE from "three"
 
-/**
- * HUD 深空背景层
- * 参考 health-ai-butler 的 SceneBackground 设计
- * 纯 CSS 实现：多层渐变 + 网格 + 粒子 + 扫描线 + 暗角
- */
-export default function BackgroundLayer() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+const NODE_COUNT = 150
+const LINE_COUNT = 70
 
-  // 粒子动画（轻量 canvas）
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
 
-    let animationId: number
-    let w: number, h: number
+function isLowEndDevice() {
+  if (typeof navigator === "undefined") return true
+  const nav = navigator as Navigator & { deviceMemory?: number }
+  return (navigator.hardwareConcurrency ?? 2) <= 4 || (nav.deviceMemory ?? 4) <= 4
+}
 
-    interface Particle {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      size: number
-      alpha: number
-      hue: number
+function IntelligenceField({ dark }: { dark: boolean }) {
+  const pointsRef = useMemo(() => ({ current: null as THREE.Points | null }), [])
+  const linesRef = useMemo(() => ({ current: null as THREE.LineSegments | null }), [])
+  const ringsRef = useRef<THREE.Group>(null)
+
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(NODE_COUNT * 3)
+    const colors = new Float32Array(NODE_COUNT * 3)
+    for (let i = 0; i < NODE_COUNT; i += 1) {
+      const r = 5 + (i % 17) * 0.08
+      const a = i * 2.399963
+      positions[i * 3] = Math.cos(a) * r + (Math.sin(i * 1.7) * 0.8)
+      positions[i * 3 + 1] = Math.sin(a) * r * 0.52 + (Math.cos(i * 0.9) * 0.6)
+      positions[i * 3 + 2] = ((i % 11) - 5) * 0.42
+      colors[i * 3] = dark ? 0.86 : 0.72
+      colors[i * 3 + 1] = dark ? 0.68 : 0.56
+      colors[i * 3 + 2] = dark ? 0.42 : 0.33
     }
+    return { positions, colors }
+  }, [dark])
 
-    const particles: Particle[] = []
-    const PARTICLE_COUNT = 180
-
-    function resize() {
-      w = canvas!.width = window.innerWidth
-      h = canvas!.height = window.innerHeight
+  const lineGeometry = useMemo(() => {
+    const positions = new Float32Array(LINE_COUNT * 2 * 3)
+    for (let i = 0; i < LINE_COUNT; i += 1) {
+      const from = (i * 7) % NODE_COUNT
+      const to = (from + 13 + (i % 9)) % NODE_COUNT
+      positions.set(geometry.positions.slice(from * 3, from * 3 + 3), i * 6)
+      positions.set(geometry.positions.slice(to * 3, to * 3 + 3), i * 6 + 3)
     }
+    return positions
+  }, [geometry.positions])
 
-    function initParticles() {
-      particles.length = 0
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.15,
-          size: Math.random() * 1.5 + 0.3,
-          alpha: Math.random() * 0.5 + 0.2,
-          hue: 160 + Math.random() * 40,
-        })
-      }
+  const pointMaterial = useMemo(
+    () =>
+      new THREE.PointsMaterial({
+        size: dark ? 0.045 : 0.035,
+        transparent: true,
+        opacity: dark ? 0.48 : 0.36,
+        vertexColors: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [dark]
+  )
+
+  const lineMaterial = useMemo(
+    () =>
+      new THREE.LineBasicMaterial({
+        color: dark ? "#d7b675" : "#b8985f",
+        transparent: true,
+        opacity: dark ? 0.12 : 0.08,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [dark]
+  )
+
+  const ringMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: dark ? "#e4c27b" : "#b99658",
+        transparent: true,
+        opacity: dark ? 0.08 : 0.055,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [dark]
+  )
+
+  useFrame(({ clock, pointer }) => {
+    const t = clock.elapsedTime
+    if (pointsRef.current) {
+      pointsRef.current.rotation.z = t * 0.012
+      pointsRef.current.rotation.x = pointer.y * 0.035
+      pointsRef.current.rotation.y = pointer.x * 0.035
     }
-
-    function draw() {
-      ctx!.clearRect(0, 0, w, h)
-
-      for (const p of particles) {
-        p.x += p.vx
-        p.y += p.vy
-
-        // 边界环绕
-        if (p.x < 0) p.x = w
-        if (p.x > w) p.x = 0
-        if (p.y < 0) p.y = h
-        if (p.y > h) p.y = 0
-
-        ctx!.beginPath()
-        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx!.fillStyle = `hsla(${p.hue}, 70%, 60%, ${p.alpha})`
-        ctx!.fill()
-      }
-
-      // 连接线（距离近的粒子）
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 120) {
-            ctx!.beginPath()
-            ctx!.moveTo(particles[i].x, particles[i].y)
-            ctx!.lineTo(particles[j].x, particles[j].y)
-            ctx!.strokeStyle = `hsla(170, 60%, 50%, ${0.06 * (1 - dist / 120)})`
-            ctx!.lineWidth = 0.5
-            ctx!.stroke()
-          }
-        }
-      }
-
-      animationId = requestAnimationFrame(draw)
+    if (linesRef.current) {
+      linesRef.current.rotation.z = -t * 0.008
+      linesRef.current.rotation.y = pointer.x * 0.02
     }
-
-    resize()
-    initParticles()
-    draw()
-
-    window.addEventListener("resize", resize)
-
-    return () => {
-      cancelAnimationFrame(animationId)
-      window.removeEventListener("resize", resize)
+    if (ringsRef.current) {
+      // CRG: Slow orbital motion adds premium depth without becoming an attention-heavy animation.
+      ringsRef.current.rotation.z = t * 0.018
+      ringsRef.current.rotation.x = 0.42 + pointer.y * 0.025
+      ringsRef.current.rotation.y = pointer.x * 0.04
     }
-  }, [])
+  })
 
   return (
-    // CRG: keep the HUD atmosphere strong in dark mode without washing out the light theme.
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-20 dark:opacity-100 transition-opacity duration-300">
-      {/* 基础渐变背景 */}
-      <div className="absolute inset-0 bg-hud-gradient" />
+    <group position={[0, 0, -1]}>
+      {/* CRG: The field is decorative only, so all geometry stays isolated from page state and API data. */}
+      <points ref={(node) => { pointsRef.current = node }} material={pointMaterial}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" count={NODE_COUNT} array={geometry.positions} itemSize={3} />
+          <bufferAttribute attach="attributes-color" count={NODE_COUNT} array={geometry.colors} itemSize={3} />
+        </bufferGeometry>
+      </points>
+      <lineSegments ref={(node) => { linesRef.current = node }} material={lineMaterial}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" count={LINE_COUNT * 2} array={lineGeometry} itemSize={3} />
+        </bufferGeometry>
+      </lineSegments>
+      <group ref={ringsRef} position={[1.1, -0.2, -0.8]} rotation={[0.42, 0, 0.18]}>
+        <mesh material={ringMaterial}>
+          <torusGeometry args={[3.25, 0.006, 8, 160]} />
+        </mesh>
+        <mesh material={ringMaterial} rotation={[0, 0, Math.PI / 2.8]}>
+          <torusGeometry args={[2.35, 0.005, 8, 140]} />
+        </mesh>
+        <mesh material={ringMaterial} rotation={[0, 0, -Math.PI / 3.4]}>
+          <torusGeometry args={[4.05, 0.004, 8, 180]} />
+        </mesh>
+      </group>
+    </group>
+  )
+}
 
-      {/* 网格叠加 */}
-      <div className="absolute inset-0 bg-grid-overlay animate-[grid-pulse_8s_ease-in-out_infinite]" />
+export default function BackgroundLayer() {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [canvasEnabled, setCanvasEnabled] = useState(false)
+  const [pointer, setPointer] = useState({ x: 68, y: 24 })
+  const dark = resolvedTheme === "dark"
 
-      {/* 粒子层 */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.7 }}
-      />
+  useEffect(() => {
+    setMounted(true)
+    setCanvasEnabled(!isLowEndDevice() && !prefersReducedMotion())
+  }, [])
 
-      {/* 顶部光束 */}
-      <div
-        className="absolute inset-x-0 top-0 h-[45%] bg-godray"
-        style={{ transform: "translateY(-10%)" }}
-      />
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      // CRG: Pointer light is CSS-only and decorative, so it cannot disturb app data or layout.
+      setPointer({
+        x: Math.round((event.clientX / window.innerWidth) * 100),
+        y: Math.round((event.clientY / window.innerHeight) * 100),
+      })
+    }
+    window.addEventListener("pointermove", handlePointerMove, { passive: true })
+    return () => window.removeEventListener("pointermove", handlePointerMove)
+  }, [])
 
-      {/* 底部辉光 */}
-      <div
-        className="absolute left-1/2 bottom-0 w-[60%] h-[40%] -translate-x-1/2"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 100%, rgba(57,255,208,0.08), transparent 55%)",
-          filter: "blur(30px)",
-        }}
-      />
+  if (!mounted) return null
 
-      {/* 暗角 */}
-      <div className="absolute inset-0 bg-vignette" />
-
-      {/* 扫描线 */}
-      <div className="scan-line" />
-
-      {/* 噪点纹理 */}
-      <div
-        className="absolute inset-0 opacity-[0.035] mix-blend-screen"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")`,
-          backgroundSize: "180px 180px",
-        }}
-      />
+  return (
+    <div
+      className="lux-background fixed inset-0 z-0 overflow-hidden pointer-events-none"
+      style={{ "--lux-pointer-x": `${pointer.x}%`, "--lux-pointer-y": `${pointer.y}%` } as React.CSSProperties}
+      aria-hidden
+    >
+      <div className="lux-background-media" />
+      <div className="lux-background-grid" />
+      <div className="lux-pointer-light" />
+      {canvasEnabled ? (
+        <Canvas
+          camera={{ position: [0, 0, 8], fov: 52 }}
+          dpr={[1, 1.5]}
+          gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+          style={{ position: "absolute", inset: 0 }}
+        >
+          <Suspense fallback={null}>
+            <IntelligenceField dark={dark} />
+          </Suspense>
+        </Canvas>
+      ) : (
+        <div className="lux-background-static" />
+      )}
     </div>
   )
 }
