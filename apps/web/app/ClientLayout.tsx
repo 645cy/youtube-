@@ -252,7 +252,7 @@ function DesktopSidebar({ open, pathname }: { open: boolean; pathname: string })
 function MobileSidebar({ pathname, onClose }: { pathname: string; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      <button className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={onClose} aria-label="关闭导航遮罩" />
+      <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={onClose} aria-label="关闭导航遮罩" />
       <aside className="lux-sidebar relative h-full w-[304px] max-w-[86vw]">
         <div className="flex items-center justify-between p-4">
           <Link href="/workspace" onClick={onClose} className="lux-brand">
@@ -340,7 +340,7 @@ function ToastStack({
         >
           <span className="h-2 w-2 shrink-0 rounded-full bg-current" />
           <p className="min-w-0 flex-1 text-sm font-medium leading-5">{toast.message}</p>
-          <button onClick={() => onClose(toast.id)} className="rounded-full p-1 text-muted-foreground hover:text-foreground">
+          <button type="button" onClick={() => onClose(toast.id)} className="rounded-full p-1 text-muted-foreground hover:text-foreground">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
