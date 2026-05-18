@@ -83,13 +83,12 @@ export default function WorkspacePage() {
         if (projectRes.status === "fulfilled") {
           setProjects(projectRes.value?.items ?? [])
         }
-      } catch (e) {
-        console.error("Workspace data load failed:", e)
+      } catch {
+        // load failure handled by finally block
       } finally {
         if (!cancelled) setProjectsLoading(false)
       }
-    }).catch((e) => {
-      console.error("Workspace API call failed:", e)
+    }).catch(() => {
       if (!cancelled) setProjectsLoading(false)
     })
 
