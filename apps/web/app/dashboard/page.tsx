@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useGSAPReveal } from "@/hooks/useGSAPReveal"
+import { ChannelGrid } from "./components/ChannelGrid"
 import {
   RefreshCw,
   Tv,
@@ -447,22 +447,4 @@ export default function DashboardPage() {
   )
 }
 
-function ChannelGrid({ channels, onChannelClick }: { channels: IntelChannel[]; onChannelClick: (channel: IntelChannel) => void }) {
-  const gridRef = useGSAPReveal<HTMLDivElement>({
-    y: 24,
-    opacity: 0,
-    duration: 0.5,
-    stagger: 0.06,
-    ease: "power3.out",
-  })
 
-  return (
-    <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {channels.map((channel) => (
-        <div key={channel.id} className="depth-hover">
-          <ChannelCard channel={channel} onClick={onChannelClick} />
-        </div>
-      ))}
-    </div>
-  )
-}
