@@ -212,21 +212,16 @@ export default function CrawlerPage() {
             if (latest.status === "success") {
               toastInfo(`任务执行完成，发现 ${latest.items_found} 条结果`)
               if (latest.items_found > 0) {
-                const createProject = confirm(
-                  `任务「${task.name}」发现 ${latest.items_found} 条结果。\n是否基于此创建内容项目？`
-                )
-                if (createProject) {
-                  try {
-                    await projectApi.create({
-                      title: `${task.name} — ${new Date().toLocaleDateString("zh-CN")}`,
-                      description: `从爬虫任务「${task.name}」创建，发现 ${latest.items_found} 条结果`,
-                      source_crawler_task_id: task.id,
-                      source_run_id: latest.id,
-                    })
-                    toastInfo("内容项目已创建，可在工作台查看")
-                  } catch (e: any) {
-                    toastError("创建项目失败: " + (e.message || "未知错误"))
-                  }
+                try {
+                  await projectApi.create({
+                    title: `${task.name} — ${new Date().toLocaleDateString("zh-CN")}`,
+                    description: `从爬虫任务「${task.name}」创建，发现 ${latest.items_found} 条结果`,
+                    source_crawler_task_id: task.id,
+                    source_run_id: latest.id,
+                  })
+                  toastInfo("内容项目已创建，可在工作台查看")
+                } catch (e: any) {
+                  toastError("创建项目失败: " + (e.message || "未知错误"))
                 }
               }
             } else {
